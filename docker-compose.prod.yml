@@ -32,6 +32,8 @@ services:
              gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"
     volumes:
       - static_volume:/app/staticfiles
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
     env_file:
       - .env
     depends_on:
@@ -47,6 +49,8 @@ services:
       args:
         REQUIREMENTS: requirements/prod.txt
     command: celery -A config worker -l info
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
     env_file:
       - .env
     depends_on:
@@ -60,6 +64,8 @@ services:
       args:
         REQUIREMENTS: requirements/prod.txt
     command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
     env_file:
       - .env
     depends_on:
