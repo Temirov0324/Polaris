@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TravelAI — Sayohat byudjeti va jamg'arish rejasi</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ static_version }}" />
+  <link rel="stylesheet" href="{% static 'css/components.css' %}?v={{ static_version }}" />
+  <link rel="stylesheet" href="{% static 'css/pages.css' %}?v={{ static_version }}" />
+</head>
+<body>
+  <header id="nav"></header>
+  <main id="app">
+    <p class="loading">Yuklanmoqda&hellip;</p>
+  </main>
+  <div id="toast-root" class="toast-root" aria-live="polite"></div>
+
+  <script src="{% static 'js/api.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/state.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/components/toast.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/components/nav.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/components/progress-ring.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/components/bar-chart.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/components/saving-modal.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/landing.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/auth.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/dashboard.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/trip-wizard.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/savings.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/chat.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/pages/profile.js' %}?v={{ static_version }}"></script>
+  <script src="{% static 'js/router.js' %}?v={{ static_version }}"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+from datetime import timedelta
+
+from celery import shared_task
+from django.conf import settings
+from django.core.mail import send_mail
+from django.db.models import Sum
+from django.utils import timezone
+
+from apps.savings.services.saving_plan import calculate_streak, get_saving_plan
+from apps.trips.models import Trip
+
+
+def _active_trips_with_target():
+    return (
+        Trip.objects.filter(
+            status__in=[Trip.Status.PLANNING, Trip.Status.SAVING],
+            target_amount__isnull=False,
+        )
+        .exclude(user__email="")
+        .select_related("user", "destination")
+    )
+
+
+@shared_task
+def daily_saving_reminder():
+    """20:00 (Asia/Tashkent) — "Bugun $X jamg'arishni unutmang. {Yo'nalish}gacha {N} kun."."""
+    sent = 0
+    for trip in _active_trips_with_target().filter(user__notify_daily=True):
+        plan = get_saving_plan(trip)
+        if plan.days_left <= 0 or plan.remaining <= 0:
+            continue
+        send_mail(
+            subject="TravelAI — bugungi jamg'arish eslatmasi",
+            message=(
+                f"Salom {trip.user.full_name}!\n\n"
+                f"Bugun ${plan.per_day} jamg'arishni unutmang. "
+                f"{trip.destination.city_uz}gacha {plan.days_left} kun qoldi.\n\n— TravelAI"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[trip.user.email],
+            fail_silently=True,
+        )
+        sent += 1
+    return sent
+
+
+@shared_task
+def weekly_progress():
+    """Yakshanba 10:00 — "Bu hafta $X yig'dingiz. Maqsadning Y%i bajarildi."."""
+    sent = 0
+    week_ago = timezone.localdate() - timedelta(days=7)
+    for trip in _active_trips_with_target().filter(user__notify_weekly=True):
+        plan = get_saving_plan(trip)
+        week_total = trip.saving_entries.filter(date__gte=week_ago).aggregate(total=Sum("amount"))["total"] or 0
+        send_mail(
+            subject="TravelAI — haftalik hisobot",
+            message=(
+                f"Salom {trip.user.full_name}!\n\n"
+                f"Bu hafta ${week_total} yig'dingiz. Maqsadning {plan.progress_pct}%i bajarildi.\n\n— TravelAI"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[trip.user.email],
+            fail_silently=True,
+        )
+        sent += 1
+    return sent
+
+
+@shared_task
+def streak_warning():
+    """21:30 — faqat streak > 3 va bugun hali yozuv qo'shilmagan bo'lsa."""
+    sent = 0
+    today = timezone.localdate()
+    for trip in _active_trips_with_target().filter(user__notify_streak=True):
+        entry_dates = set(trip.saving_entries.values_list("date", flat=True))
+        if today in entry_dates:
+            continue
+
+        streak_through_yesterday = calculate_streak(entry_dates, today=today - timedelta(days=1))
+        if streak_through_yesterday <= 3:
+            continue
+
+        send_mail(
+            subject="TravelAI — streak'ingiz xavf ostida!",
+            message=(
+                f"Salom {trip.user.full_name}!\n\n"
+                f"{streak_through_yesterday} kunlik jamg'arish streak'ingizni yo'qotmang — "
+                f"bugun hali yozuv qo'shmadingiz.\n\n— TravelAI"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[trip.user.email],
+            fail_silently=True,
+        )
+        sent += 1
+    return sent
