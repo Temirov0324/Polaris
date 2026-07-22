@@ -4,8 +4,8 @@ from decimal import Decimal
 import pytest
 from django.core import mail
 
-from apps.destinations.models import Country, Destination
-from apps.notifications.tasks import daily_saving_reminder, streak_warning, weekly_progress
+from apps.destinations.models import Country, Destination, PriceReference
+from apps.notifications.tasks import check_price_drops, daily_saving_reminder, streak_warning, weekly_progress
 from apps.savings.models import SavingEntry
 from apps.trips.models import Trip
 from apps.users.models import User
@@ -118,3 +118,65 @@ class TestStreakWarning:
         self._trip_with_streak(user, destination, streak_days=2)
 
         assert streak_warning() == 0
+
+
+@pytest.mark.django_db
+class TestCheckPriceDrops:
+    def _price_reference(self, destination, month=6):
+        return PriceReference.objects.create(
+            destination=destination,
+            month=month,
+            flight_return_usd=Decimal("200"),
+            hotel_night_econom=Decimal("20"),
+            hotel_night_standard=Decimal("40"),
+            hotel_night_comfort=Decimal("80"),
+            food_day_econom=Decimal("10"),
+            food_day_standard=Decimal("20"),
+            food_day_comfort=Decimal("40"),
+            transport_day_usd=Decimal("5"),
+            activity_day_usd=Decimal("10"),
+        )
+
+    def _trip_starting_in(self, user, destination, month, budget_min):
+        return Trip.objects.create(
+            user=user,
+            destination=destination,
+            start_date=date(date.today().year, month, 15),
+            duration_days=5,
+            budget_min=budget_min,
+            budget_max=budget_min * 2,
+            status=Trip.Status.SAVING,
+        )
+
+    def test_sends_email_and_rebaselines_when_price_dropped(self, destination):
+        self._price_reference(destination, month=6)
+        user = _make_user("+998900000010", email="j@example.com", notify_price_drop=True)
+        trip = self._trip_starting_in(user, destination, month=6, budget_min=Decimal("1000"))
+
+        sent = check_price_drops()
+
+        assert sent == 1
+        assert len(mail.outbox) == 1
+        trip.refresh_from_db()
+        assert trip.budget_min < Decimal("1000")
+
+    def test_silent_when_drop_is_below_threshold(self, destination):
+        self._price_reference(destination, month=6)
+        user = _make_user("+998900000011", email="k@example.com", notify_price_drop=True)
+        self._trip_starting_in(user, destination, month=6, budget_min=Decimal("561.49"))
+
+        assert check_price_drops() == 0
+        assert len(mail.outbox) == 0
+
+    def test_skips_user_with_price_drop_notifications_disabled(self, destination):
+        self._price_reference(destination, month=6)
+        user = _make_user("+998900000012", email="l@example.com", notify_price_drop=False)
+        self._trip_starting_in(user, destination, month=6, budget_min=Decimal("1000"))
+
+        assert check_price_drops() == 0
+
+    def test_skips_destination_without_price_reference(self, destination):
+        user = _make_user("+998900000013", email="m@example.com", notify_price_drop=True)
+        self._trip_starting_in(user, destination, month=6, budget_min=Decimal("1000"))
+
+        assert check_price_drops() == 0

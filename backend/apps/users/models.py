@@ -38,6 +38,7 @@ class User(AbstractUser):
     notify_daily = models.BooleanField(default=True)
     notify_weekly = models.BooleanField(default=True)
     notify_streak = models.BooleanField(default=True)
+    notify_price_drop = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

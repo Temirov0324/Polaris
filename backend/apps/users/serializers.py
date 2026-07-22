@@ -77,6 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
             "notify_daily",
             "notify_weekly",
             "notify_streak",
+            "notify_price_drop",
             "created_at",
         ]
         read_only_fields = ["id", "phone", "created_at"]

@@ -16,6 +16,10 @@ SCHEDULES = {
         "task": "apps.notifications.tasks.streak_warning",
         "cron": dict(minute="30", hour="21", day_of_week="*", day_of_month="*", month_of_year="*"),
     },
+    "price-drop-check": {
+        "task": "apps.notifications.tasks.check_price_drops",
+        "cron": dict(minute="0", hour="9", day_of_week="*", day_of_month="*", month_of_year="*"),
+    },
 }
 
 

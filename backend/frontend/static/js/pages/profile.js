@@ -59,6 +59,7 @@ window.pages.profile = async function renderProfile() {
         <label class="checkbox-row"><input type="checkbox" name="notify_daily" ${user.notify_daily ? "checked" : ""} /> Kunlik eslatma</label>
         <label class="checkbox-row"><input type="checkbox" name="notify_weekly" ${user.notify_weekly ? "checked" : ""} /> Haftalik hisobot</label>
         <label class="checkbox-row"><input type="checkbox" name="notify_streak" ${user.notify_streak ? "checked" : ""} /> Streak ogohlantirishi</label>
+        <label class="checkbox-row"><input type="checkbox" name="notify_price_drop" ${user.notify_price_drop ? "checked" : ""} /> Narx pasaysa xabar bering</label>
         <button type="submit" class="btn btn--primary btn--block">Saqlash</button>
       </form>
 
@@ -83,6 +84,7 @@ window.pages.profile = async function renderProfile() {
         notify_daily: form.notify_daily.checked,
         notify_weekly: form.notify_weekly.checked,
         notify_streak: form.notify_streak.checked,
+        notify_price_drop: form.notify_price_drop.checked,
       });
       state.user = res.data;
       showToast("Saqlandi!", "success");

@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from celery import shared_task
 from django.conf import settings
@@ -6,8 +7,12 @@ from django.core.mail import send_mail
 from django.db.models import Sum
 from django.utils import timezone
 
+from apps.destinations.models import PriceReference
 from apps.savings.services.saving_plan import calculate_streak, get_saving_plan
 from apps.trips.models import Trip
+from apps.trips.services.budget_calculator import estimate_trip_budget
+
+PRICE_DROP_THRESHOLD = Decimal("0.05")  # 5%+ pasayish bo'lsagina xabar beramiz
 
 
 def _active_trips_with_target():
@@ -40,6 +45,56 @@ def daily_saving_reminder():
             recipient_list=[trip.user.email],
             fail_silently=True,
         )
+        sent += 1
+    return sent
+
+
+@shared_task
+def check_price_drops():
+    """09:00 — narx ma'lumotlari (PriceReference) yangilanib, taxminiy
+    byudjet trip yaratilgan paytdagidan kamida 5% pastga tushgan bo'lsa,
+    foydalanuvchiga xabar beramiz va trip'ning bazaviy byudjetini
+    yangilaymiz (keyingi solishtiruv shundan boshlansin)."""
+    sent = 0
+    trips = (
+        Trip.objects.filter(status__in=[Trip.Status.PLANNING, Trip.Status.SAVING], user__notify_price_drop=True)
+        .exclude(user__email="")
+        .select_related("user", "destination__country")
+    )
+    for trip in trips:
+        try:
+            result = estimate_trip_budget(
+                destination=trip.destination,
+                start_date=trip.start_date,
+                duration_days=trip.duration_days,
+                travelers_count=trip.travelers_count,
+                style=trip.style,
+            )
+        except PriceReference.DoesNotExist:
+            continue
+
+        old_min = trip.budget_min
+        if old_min <= 0:
+            continue
+
+        drop_pct = (old_min - result.budget_min) / old_min
+        if drop_pct < PRICE_DROP_THRESHOLD:
+            continue
+
+        send_mail(
+            subject="PolarisAI — narx pasaydi!",
+            message=(
+                f"Salom {trip.user.full_name}!\n\n"
+                f"{trip.destination.city_uz} yo'nalishi uchun taxminiy byudjet pasaydi: "
+                f"${old_min} -> ${result.budget_min} (-{int(drop_pct * 100)}%).\n\n— PolarisAI"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[trip.user.email],
+            fail_silently=True,
+        )
+        trip.budget_min = result.budget_min
+        trip.budget_max = result.budget_max
+        trip.save(update_fields=["budget_min", "budget_max"])
         sent += 1
     return sent
 
