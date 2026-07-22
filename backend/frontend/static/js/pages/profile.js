@@ -65,6 +65,19 @@ window.pages.profile = async function renderProfile() {
         <button type="submit" class="btn btn--primary btn--block">Saqlash</button>
       </form>
 
+      <div class="card telegram-card">
+        <h3>Telegram</h3>
+        ${
+          user.telegram_linked
+            ? `<p class="empty-hint">✓ Telegram bog'langan — eslatmalar endi shu yerga keladi.</p>`
+            : `
+          <p class="empty-hint">Bog'lansangiz, barcha eslatmalar (kunlik, streak, narx pasayishi) email o'rniga Telegram orqali keladi — ochilish ehtimoli ancha yuqori.</p>
+          <button type="button" class="btn btn--ghost btn--block" id="telegram-link-btn">Telegram bilan bog'lash</button>
+          <div id="telegram-link-result"></div>
+        `
+        }
+      </div>
+
       <h3>Sayohatlar tarixi</h3>
       <div class="trip-history">
         ${trips.length === 0 ? '<p class="empty-hint">Hali sayohat yo\'q</p>' : trips.map(tripRow).join("")}
@@ -105,6 +118,23 @@ window.pages.profile = async function renderProfile() {
       showToast(err.message);
     } finally {
       submitBtn.disabled = false;
+    }
+  });
+
+  document.getElementById("telegram-link-btn")?.addEventListener("click", async (e) => {
+    const btn = e.target;
+    btn.disabled = true;
+    try {
+      const res = await api.post("/auth/telegram/link-code/");
+      const { deep_link, expires_in_minutes } = res.data;
+      document.getElementById("telegram-link-result").innerHTML = `
+        <a class="btn btn--primary btn--block" href="${escapeHtml(deep_link)}" target="_blank" rel="noopener">Botga o'tish</a>
+        <p class="empty-hint empty-hint--spaced">Havola ${expires_in_minutes} daqiqa amal qiladi. Bot ichida "Start"ni bosing.</p>
+      `;
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      btn.disabled = false;
     }
   });
 };

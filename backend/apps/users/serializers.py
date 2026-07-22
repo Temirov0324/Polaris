@@ -62,6 +62,8 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    telegram_linked = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
@@ -78,6 +80,10 @@ class UserSerializer(serializers.ModelSerializer):
             "notify_weekly",
             "notify_streak",
             "notify_price_drop",
+            "telegram_linked",
             "created_at",
         ]
-        read_only_fields = ["id", "phone", "created_at"]
+        read_only_fields = ["id", "phone", "telegram_linked", "created_at"]
+
+    def get_telegram_linked(self, obj):
+        return bool(obj.telegram_chat_id)

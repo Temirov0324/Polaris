@@ -40,6 +40,12 @@ class User(AbstractUser):
     notify_streak = models.BooleanField(default=True)
     notify_price_drop = models.BooleanField(default=True)
 
+    # Set once the user links their account via the Telegram bot's /start
+    # <code> flow. When present, notifications prefer Telegram over email
+    # (see apps.notifications.tasks._notify) since open rates are far
+    # higher for this user base than email.
+    telegram_chat_id = models.CharField(max_length=32, blank=True, null=True, unique=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "phone"
@@ -92,3 +98,27 @@ class VerificationCode(models.Model):
     def register_wrong_attempt(self):
         self.attempts += 1
         self.save(update_fields=["attempts"])
+
+
+class TelegramLinkCode(models.Model):
+    """Short-lived code a logged-in user requests from Profile and then
+    sends to the bot as `/start <code>` to link their Telegram account."""
+
+    TTL_MINUTES = 15
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="telegram_link_codes")
+    code = models.CharField(max_length=12, unique=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def issue(cls, user):
+        code = secrets.token_urlsafe(6).replace("_", "").replace("-", "")[:8]
+        return cls.objects.create(user=user, code=code)
+
+    def is_valid(self):
+        return self.used_at is None and (timezone.now() - self.created_at).total_seconds() < self.TTL_MINUTES * 60
+
+    def mark_used(self):
+        self.used_at = timezone.now()
+        self.save(update_fields=["used_at"])

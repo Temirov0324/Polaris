@@ -15,6 +15,8 @@ api_v1_patterns = [
     path("", include("apps.trips.urls")),
     path("", include("apps.savings.urls")),
     path("chat/", include("apps.chat.urls")),
+    path("analytics/", include("apps.analytics.urls")),
+    path("telegram/", include("apps.telegram_bot.urls")),
 ]
 
 urlpatterns = [

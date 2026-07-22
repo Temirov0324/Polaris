@@ -72,6 +72,7 @@ window.pages.chat = async function renderChat() {
   }
 
   async function sendMessage(text) {
+    track("chat_message_sent");
     suggestionsEl.innerHTML = "";
     history.push({ role: "user", content: text });
     renderMessages();

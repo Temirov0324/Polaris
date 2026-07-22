@@ -1,6 +1,6 @@
 window.pages = window.pages || {};
 
-const LEGAL_UPDATED = "2026-07-22";
+const LEGAL_UPDATED = "2026-07-23";
 
 window.pages.privacy = function renderPrivacy() {
   document.getElementById("app").innerHTML = `
@@ -10,8 +10,10 @@ window.pages.privacy = function renderPrivacy() {
 
       <h2>1. Qanday ma'lumot yig'amiz</h2>
       <p>Ro'yxatdan o'tganingizda: to'liq ismingiz, telefon raqamingiz va emailingiz. Profilda ixtiyoriy
-      ravishda: uy shahringiz, valyuta tanlovingiz. Xizmatdan foydalanganda: sayohat rejalaringiz, byudjet
-      hisob-kitoblari, jamg'arish yozuvlaringiz va AI chat bilan yozishmalaringiz.</p>
+      ravishda: uy shahringiz, valyuta tanlovingiz, va (agar bog'lasangiz) Telegram hisobingiz identifikatori.
+      Xizmatdan foydalanganda: sayohat rejalaringiz, byudjet hisob-kitoblari, jamg'arish yozuvlaringiz va AI
+      chat bilan yozishmalaringiz. Shuningdek, xizmatni yaxshilash uchun anonim foydalanish statistikasini
+      (masalan, qaysi sahifalar ochilgani) yig'amiz — bu shaxsingizni aniqlash uchun ishlatilmaydi.</p>
 
       <h2>2. Ma'lumotdan qanday foydalanamiz</h2>
       <p>Ma'lumotlaringiz faqat xizmatni ko'rsatish uchun ishlatiladi: hisobingizga kirish, byudjet
@@ -21,7 +23,8 @@ window.pages.privacy = function renderPrivacy() {
       <h2>3. AI Chat va uchinchi tomon xizmatlari</h2>
       <p>AI chat funksiyasi Google Gemini (Google AI Studio) orqali ishlaydi. Chatga yozgan xabarlaringiz
       javob generatsiya qilish uchun Google'ga yuboriladi. Google'ning o'z maxfiylik siyosati alohida
-      qo'llaniladi.</p>
+      qo'llaniladi. Agar Telegram orqali bog'lasangiz, bildirishnomalar Telegram Bot API orqali yuboriladi —
+      bu holda Telegram chat identifikatoringiz saqlanadi.</p>
 
       <h2>4. Ma'lumotlarni saqlash</h2>
       <p>Ma'lumotlaringiz hisobingiz faol bo'lgan davomida saqlanadi. Hisobingizni o'chirishni so'rasangiz,

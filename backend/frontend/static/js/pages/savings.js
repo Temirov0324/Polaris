@@ -189,6 +189,7 @@ window.pages.savings = async function renderSavings(tripId) {
         submitBtn.disabled = true;
         try {
           await api.post(`/trips/${tripId}/members/`, { phone: e.target.phone.value.trim() });
+          track("member_invited");
           showToast("A'zo qo'shildi", "success");
           reload();
         } catch (err) {

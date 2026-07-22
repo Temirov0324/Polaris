@@ -42,6 +42,7 @@ function openSavingModal(tripId, { date, onSaved } = {}) {
     }
     try {
       await api.post(`/trips/${tripId}/savings/`, { amount, date: entryDate, note: note || "" });
+      track("saving_entry_added", { amount });
       showToast("Saqlandi!", "success");
       close();
       if (onSaved) onSaved();

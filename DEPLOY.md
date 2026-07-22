@@ -179,3 +179,46 @@ Domen sotib olganingizda:
    ```bash
    docker compose -f docker-compose.prod.yml up -d --build
    ```
+
+---
+
+## Telegram bot sozlash (ixtiyoriy)
+
+Bog'langan foydalanuvchilar barcha eslatmalarni (kunlik, streak, narx
+pasayishi) email o'rniga Telegram orqali oladi — ochilish ehtimoli ancha
+yuqori. Bot ichida `/byudjet <shahar> <kunlar>` buyrug'i ham ishlaydi.
+
+**Talab**: webhook faqat HTTPS domen orqali ishlaydi — avval yuqoridagi
+"Domen va HTTPS qo'shish" bosqichini bajaring.
+
+1. Telegramda **@BotFather**ga yozing, `/newbot` buyrug'ini yuboring,
+   ko'rsatmalarga amal qiling. Oxirida sizga **token** (masalan
+   `123456:ABC-DEF...`) va bot **username**i (masalan `PolarisAIBot`)
+   beriladi.
+
+2. `.env` faylini yangilang:
+   ```
+   TELEGRAM_BOT_TOKEN=<BotFather bergan token>
+   TELEGRAM_BOT_USERNAME=<bot username, @ belgisisiz>
+   TELEGRAM_WEBHOOK_SECRET=<tasodifiy matn>
+   ```
+   `TELEGRAM_WEBHOOK_SECRET` yaratish uchun:
+   ```bash
+   python3 -c "import secrets; print(secrets.token_urlsafe(24))"
+   ```
+
+3. Konteynerlarni qayta ishga tushiring:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --force-recreate web celery celery-beat
+   ```
+
+4. Webhook'ni **bir marta** ro'yxatdan o'tkazing (o'z kompyuteringizdan
+   yoki VPS'dan bajarish mumkin):
+   ```bash
+   curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<domeningiz>/api/v1/telegram/webhook/<WEBHOOK_SECRET>/"
+   ```
+   Javobda `"ok":true` chiqishi kerak.
+
+5. Tekshirish: Telegram'da botingizni toping, `/help` yuboring — buyruqlar
+   ro'yxati kelishi kerak. Saytda Profil → "Telegram bilan bog'lash"
+   tugmasini bosib, hisobingizni bog'lang.

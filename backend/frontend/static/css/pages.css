@@ -795,6 +795,10 @@
   margin: 0 auto;
 }
 
+.telegram-card {
+  margin: 1.25rem 0;
+}
+
 .trip-history {
   display: flex;
   flex-direction: column;

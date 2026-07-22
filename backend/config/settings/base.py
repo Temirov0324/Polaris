@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "apps.savings",
     "apps.chat",
     "apps.notifications",
+    "apps.analytics",
+    "apps.telegram_bot",
 ]
 
 MIDDLEWARE = [
@@ -196,3 +198,13 @@ if SENTRY_DSN:
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.1),
         send_default_pii=False,
     )
+
+# --- Telegram bot (notifications + /byudjet) --------------------------------
+# Opt-in: leave TELEGRAM_BOT_TOKEN empty to disable entirely (sends become
+# silent no-ops, webhook returns 404). Create a bot via @BotFather, then
+# register the webhook once with:
+#   curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<domain>/api/v1/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>/"
+
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="")
+TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="")

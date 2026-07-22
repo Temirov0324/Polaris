@@ -20,6 +20,7 @@ window.pages.tripWizard = function renderTripWizard() {
 };
 
 function renderWizardStep(wizard) {
+  track("wizard_step_viewed", { step: wizard.step });
   const app = document.getElementById("app");
   app.innerHTML = `
     <div class="page wizard">
@@ -79,6 +80,7 @@ function renderWizardDestination(el, wizard) {
             city_uz: card.dataset.city,
             country_name: card.dataset.country,
           };
+          track("wizard_destination_selected", { destination_id: wizard.data.destination.id });
           wizard.step = 2;
           renderWizardStep(wizard);
         });
@@ -302,6 +304,7 @@ async function renderWizardResult(el, wizard) {
         style: wizard.data.style,
         target_amount: targetAmount,
       });
+      track("trip_created", { destination_id: wizard.data.destination.id });
       showToast("Sayohat rejasi yaratildi!", "success");
       location.hash = "#/goal";
     } catch (err) {

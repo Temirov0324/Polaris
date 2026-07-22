@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 import pytest
 from django.core import mail
@@ -180,3 +181,39 @@ class TestCheckPriceDrops:
         self._trip_starting_in(user, destination, month=6, budget_min=Decimal("1000"))
 
         assert check_price_drops() == 0
+
+
+@pytest.mark.django_db
+class TestTelegramPreferredOverEmail:
+    @patch("apps.notifications.tasks.send_telegram_message")
+    def test_linked_user_gets_telegram_not_email(self, mock_send, destination):
+        user = _make_user("+998900000014", email="n@example.com", notify_daily=True)
+        user.telegram_chat_id = "12345"
+        user.save(update_fields=["telegram_chat_id"])
+        _make_trip(user, destination)
+
+        sent = daily_saving_reminder()
+
+        assert sent == 1
+        mock_send.assert_called_once()
+        assert mock_send.call_args[0][0] == "12345"
+        assert len(mail.outbox) == 0
+
+    @patch("apps.notifications.tasks.send_telegram_message")
+    def test_telegram_linked_user_without_email_still_notified(self, mock_send, destination):
+        user = _make_user("+998900000015", email="", notify_daily=True)
+        user.telegram_chat_id = "67890"
+        user.save(update_fields=["telegram_chat_id"])
+        _make_trip(user, destination)
+
+        sent = daily_saving_reminder()
+
+        assert sent == 1
+        mock_send.assert_called_once()
+
+    def test_user_with_neither_email_nor_telegram_is_skipped(self, destination):
+        user = _make_user("+998900000016", email="", notify_daily=True)
+        _make_trip(user, destination)
+
+        assert daily_saving_reminder() == 0
+        assert len(mail.outbox) == 0

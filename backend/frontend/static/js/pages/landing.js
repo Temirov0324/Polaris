@@ -1,6 +1,7 @@
 window.pages = window.pages || {};
 
 window.pages.landing = function renderLanding() {
+  track("landing_viewed");
   document.getElementById("app").innerHTML = `
     <div class="landing">
       <section class="landing__hero">

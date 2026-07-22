@@ -52,9 +52,40 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+/* First-party, self-hosted usage analytics (see apps/analytics) — no
+   external tracking service. Fire-and-forget: analytics must never be able
+   to break or slow down the product it's observing. */
+function anonId() {
+  let id;
+  try {
+    id = localStorage.getItem("polarisai_anon_id");
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+      localStorage.setItem("polarisai_anon_id", id);
+    }
+  } catch (err) {
+    id = "";
+  }
+  return id;
+}
+
+function track(event, properties) {
+  try {
+    fetch("/api/v1/analytics/track/", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, anon_id: anonId(), properties: properties || {} }),
+    }).catch(() => {});
+  } catch (err) {
+    // analytics is best-effort only
+  }
+}
+
 window.state = state;
 window.loadCurrentUser = loadCurrentUser;
 window.formatUsd = formatUsd;
 window.formatDate = formatDate;
 window.escapeHtml = escapeHtml;
 window.todayIso = todayIso;
+window.track = track;

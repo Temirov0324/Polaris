@@ -29,6 +29,7 @@ window.pages.login = function renderLogin() {
         password: form.password.value,
       });
       state.user = res.data;
+      track("login");
       location.hash = "#/dashboard";
     } catch (err) {
       showToast(err.message);
@@ -81,6 +82,7 @@ window.pages.register = function renderRegister() {
           password: form.password.value,
         });
         email = res.data.email;
+        track("register_started");
         showToast("Tasdiqlash kodi emailingizga yuborildi", "success");
         renderVerify();
       } catch (err) {
@@ -119,6 +121,7 @@ window.pages.register = function renderRegister() {
           code: form.code.value.trim(),
         });
         state.user = res.data;
+        track("register_verified");
         location.hash = "#/dashboard";
       } catch (err) {
         showToast(err.message);

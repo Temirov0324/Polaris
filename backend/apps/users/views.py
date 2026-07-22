@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from core.responses import envelope
 
 from .cookies import clear_auth_cookies, set_auth_cookies
-from .models import User, VerificationCode
+from .models import TelegramLinkCode, User, VerificationCode
 from .serializers import (
     LoginSerializer,
     PasswordResetConfirmSerializer,
@@ -251,3 +251,24 @@ class MeView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return envelope(serializer.data)
+
+
+class TelegramLinkCodeView(APIView):
+    """Issues a short-lived code the user sends to the bot as
+    `/start <code>` to link their Telegram account for notifications."""
+
+    def post(self, request):
+        if not settings.TELEGRAM_BOT_USERNAME:
+            return envelope({"detail": "Telegram bot hali sozlanmagan"}, status=503)
+
+        link = TelegramLinkCode.issue(request.user)
+        deep_link = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={link.code}"
+        return envelope(
+            {
+                "code": link.code,
+                "bot_username": settings.TELEGRAM_BOT_USERNAME,
+                "deep_link": deep_link,
+                "expires_in_minutes": TelegramLinkCode.TTL_MINUTES,
+            },
+            status=201,
+        )
