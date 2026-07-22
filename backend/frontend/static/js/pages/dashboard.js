@@ -6,7 +6,7 @@ window.pages.dashboard = async function renderDashboard() {
 
   const tripsRes = await api.get("/trips/");
   const trips = tripsRes.data;
-  const activeTrip = trips.find((t) => ["planning", "saving"].includes(t.status)) || trips[0];
+  const activeTrip = trips.find((t) => ["planning", "saving"].includes(t.status));
 
   if (!activeTrip) {
     app.innerHTML = `
@@ -69,6 +69,11 @@ window.pages.dashboard = async function renderDashboard() {
 
       <button class="btn btn--primary btn--block btn--large" id="add-saving-btn">Bugun jamg'ardim</button>
       <a class="btn btn--ghost btn--block" href="#/trips/${activeTrip.id}/savings">Jamg'arish tarixi</a>
+
+      <div class="dashboard__trip-actions">
+        <button type="button" class="link-btn" id="edit-trip-btn">Maqsadni tahrirlash</button>
+        <button type="button" class="link-btn link-btn--danger" id="cancel-trip-btn">Sayohatni bekor qilish</button>
+      </div>
     </div>
   `;
 
@@ -76,5 +81,20 @@ window.pages.dashboard = async function renderDashboard() {
 
   document.getElementById("add-saving-btn").addEventListener("click", () => {
     openSavingModal(activeTrip.id, { onSaved: () => window.pages.dashboard() });
+  });
+
+  document.getElementById("edit-trip-btn").addEventListener("click", () => {
+    openTripEditModal(activeTrip, { onSaved: () => window.pages.dashboard() });
+  });
+
+  document.getElementById("cancel-trip-btn").addEventListener("click", async () => {
+    if (!confirm("Bu sayohatni bekor qilishni tasdiqlaysizmi?")) return;
+    try {
+      await api.patch(`/trips/${activeTrip.id}/`, { status: "cancelled" });
+      showToast("Sayohat bekor qilindi", "success");
+      window.pages.dashboard();
+    } catch (err) {
+      showToast(err.message);
+    }
   });
 };
