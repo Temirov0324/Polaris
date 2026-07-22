@@ -1,0 +1,163 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PolarisAI Admin\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uz\n"
+
+# Fills gaps left by Django's own (partial) uz admin catalog and by
+# django-jazzmin / django-celery-beat / djangorestframework-simplejwt,
+# none of which ship an uz translation at all. Project-level catalogs
+# take precedence over app-shipped ones for the same msgid, so this
+# file only needs the strings that were actually falling back to
+# English in the admin panel.
+
+msgid "Home"
+msgstr "Bosh sahifa"
+
+msgid "Dashboard"
+msgstr "Boshqaruv paneli"
+
+msgid "Go"
+msgstr "O'tish"
+
+msgid "Close"
+msgstr "Yopish"
+
+msgid "Log in"
+msgstr "Kirish"
+
+msgid "Log in again"
+msgstr "Qayta kirish"
+
+msgid "History"
+msgstr "Tarix"
+
+msgid "Save and add another"
+msgstr "Saqlash va yana qo'shish"
+
+msgid "Save and continue editing"
+msgstr "Saqlash va tahrirni davom ettirish"
+
+msgid "Save and view"
+msgstr "Saqlash va ko'rish"
+
+msgid "Save as new"
+msgstr "Yangi nusxa sifatida saqlash"
+
+msgid "Forgotten your password or username?"
+msgstr "Parol yoki login esingizdan chiqdimi?"
+
+msgid "None available"
+msgstr "Mavjud emas"
+
+msgid "Account"
+msgstr "Hisob"
+
+msgid "Change my password"
+msgstr "Parolni o'zgartirish"
+
+msgid "See Profile"
+msgstr "Profilni ko'rish"
+
+msgid "All rights reserved."
+msgstr "Barcha huquqlar himoyalangan."
+
+msgid "Filters"
+msgstr "Filtrlar"
+
+msgid "Actions"
+msgstr "Amallar"
+
+msgid "Yes, I’m sure"
+msgstr "Ha, ishonaman"
+
+msgid "No, take me back"
+msgstr "Yo'q, orqaga qaytaring"
+
+msgid "Type"
+msgstr "Turi"
+
+msgid "Field"
+msgstr "Maydon"
+
+msgid "Fields"
+msgstr "Maydonlar"
+
+msgid "Copyright"
+msgstr "Mualliflik huquqi"
+
+msgid "Jazzmin version"
+msgstr "Jazzmin versiyasi"
+
+# django.contrib.auth ships uz but leaves "group"/"groups" untranslated.
+msgid "group"
+msgstr "guruh"
+
+msgid "groups"
+msgstr "guruhlar"
+
+# django-celery-beat ships no uz locale at all.
+msgid "Periodic Tasks"
+msgstr "Davriy vazifalar"
+
+msgid "periodic task"
+msgstr "davriy vazifa"
+
+msgid "periodic tasks"
+msgstr "davriy vazifalar"
+
+msgid "crontab"
+msgstr "cron jadvali"
+
+msgid "crontabs"
+msgstr "cron jadvallari"
+
+msgid "interval"
+msgstr "vaqt oralig'i"
+
+msgid "intervals"
+msgstr "vaqt oraliqlari"
+
+msgid "clocked"
+msgstr "bir martalik vaqt"
+
+msgid "solar event"
+msgstr "quyosh hodisasi"
+
+msgid "solar events"
+msgstr "quyosh hodisalari"
+
+# djangorestframework-simplejwt's token_blacklist app ships no uz locale.
+msgid "Token Blacklist"
+msgstr "Token qora ro'yxati"
+
+# Django's own uz translations for these two are missing spaces/word
+# order entirely (e.g. "Add %(name)s" -> "%(name)sqo'shish", no space),
+# rendering as "Jamg'arish yozuviqo'shish" on every "+ Add" button.
+msgid "Add %(name)s"
+msgstr "%(name)sni qo'shish"
+
+msgid "The %(name)s “%(obj)s” was deleted successfully."
+msgstr "%(name)s “%(obj)s” muvaffaqiyatli o'chirildi."
+
+# django.contrib.auth ships uz but leaves these AbstractUser field labels
+# (and their filter titles) untranslated.
+msgid "active"
+msgstr "faol"
+
+msgid "staff status"
+msgstr "xodim maqomi"
+
+msgid "superuser status"
+msgstr "superfoydalanuvchi maqomi"
+
+msgid "date joined"
+msgstr "ro'yxatdan o'tgan sana"
+
+msgid "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
+msgstr "Foydalanuvchi faol deb hisoblansinmi. Hisobni o'chirish o'rniga buni bekor qiling."
+
+msgid "Designates whether the user can log into this admin site."
+msgstr "Foydalanuvchi ushbu admin panelga kira olishini belgilaydi."

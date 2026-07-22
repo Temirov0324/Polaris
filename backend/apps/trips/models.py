@@ -17,19 +17,27 @@ class Trip(models.Model):
         COMPLETED = "completed", "Yakunlandi"
         CANCELLED = "cancelled", "Bekor qilindi"
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips")
-    destination = models.ForeignKey(Destination, on_delete=models.PROTECT, related_name="trips")
-    start_date = models.DateField()
-    duration_days = models.PositiveIntegerField()
-    travelers_count = models.PositiveIntegerField(default=1)
-    style = models.CharField(max_length=10, choices=Style.choices, default=Style.STANDARD)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips", verbose_name="Foydalanuvchi"
+    )
+    destination = models.ForeignKey(
+        Destination, on_delete=models.PROTECT, related_name="trips", verbose_name="Yo'nalish"
+    )
+    start_date = models.DateField(verbose_name="Boshlanish sanasi")
+    duration_days = models.PositiveIntegerField(verbose_name="Davomiyligi (kun)")
+    travelers_count = models.PositiveIntegerField(default=1, verbose_name="Sayohatchilar soni")
+    style = models.CharField(max_length=10, choices=Style.choices, default=Style.STANDARD, verbose_name="Uslub")
 
-    budget_min = models.DecimalField(max_digits=10, decimal_places=2)
-    budget_max = models.DecimalField(max_digits=10, decimal_places=2)
-    target_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    budget_min = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Byudjet (min)")
+    budget_max = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Byudjet (maks)")
+    target_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Maqsad summasi"
+    )
 
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PLANNING)
-    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.PLANNING, verbose_name="Holat"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan vaqti")
 
     class Meta:
         verbose_name = "Sayohat"
@@ -54,9 +62,14 @@ class TripMember(models.Model):
     add/see saving entries; only the owner can edit or cancel the trip
     itself."""
 
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="members")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trip_memberships")
-    added_at = models.DateTimeField(auto_now_add=True)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="members", verbose_name="Sayohat")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="trip_memberships",
+        verbose_name="Foydalanuvchi",
+    )
+    added_at = models.DateTimeField(auto_now_add=True, verbose_name="Qo'shilgan vaqti")
 
     class Meta:
         verbose_name = "Sayohat a'zosi"
@@ -68,16 +81,16 @@ class TripMember(models.Model):
 
 
 class BudgetBreakdown(models.Model):
-    trip = models.OneToOneField(Trip, on_delete=models.CASCADE, related_name="breakdown")
+    trip = models.OneToOneField(Trip, on_delete=models.CASCADE, related_name="breakdown", verbose_name="Sayohat")
 
-    flight = models.DecimalField(max_digits=10, decimal_places=2)
-    accommodation = models.DecimalField(max_digits=10, decimal_places=2)
-    food = models.DecimalField(max_digits=10, decimal_places=2)
-    transport = models.DecimalField(max_digits=10, decimal_places=2)
-    activities = models.DecimalField(max_digits=10, decimal_places=2)
-    visa = models.DecimalField(max_digits=10, decimal_places=2)
-    insurance = models.DecimalField(max_digits=10, decimal_places=2)
-    reserve = models.DecimalField(max_digits=10, decimal_places=2)
+    flight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Chipta")
+    accommodation = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Turar joy")
+    food = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ovqat")
+    transport = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Transport")
+    activities = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faoliyatlar")
+    visa = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Viza")
+    insurance = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Sug'urta")
+    reserve = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Zaxira")
 
     class Meta:
         verbose_name = "Byudjet bo'linishi"

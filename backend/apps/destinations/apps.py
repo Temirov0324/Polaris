@@ -5,3 +5,4 @@ class DestinationsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.destinations"
     label = "destinations"
+    verbose_name = "Manzillar"

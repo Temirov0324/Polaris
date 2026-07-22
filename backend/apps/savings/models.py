@@ -5,14 +5,18 @@ from apps.trips.models import Trip
 
 
 class SavingEntry(models.Model):
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="saving_entries")
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="saving_entries", verbose_name="Sayohat")
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="saving_entries", null=True
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="saving_entries",
+        null=True,
+        verbose_name="Foydalanuvchi",
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateField()
-    note = models.CharField(max_length=200, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Summa")
+    date = models.DateField(verbose_name="Sana")
+    note = models.CharField(max_length=200, blank=True, verbose_name="Izoh")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan vaqti")
 
     class Meta:
         verbose_name = "Jamg'arish yozuvi"

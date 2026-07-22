@@ -97,6 +97,11 @@ TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
 
+# Fills the gaps Django's own (partial) uz admin catalog leaves empty, and
+# translates strings from packages that ship no uz locale at all (jazzmin,
+# django-celery-beat, simplejwt token_blacklist) — see locale/uz/LC_MESSAGES.
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
 # The site itself authenticates via JWT-in-cookie (see apps.users), not
 # Django sessions — session login is only ever used for /admin/, whose
 # Jazzmin login template doesn't render a "next" field, so the default

@@ -7,13 +7,18 @@ class AnalyticsEvent(models.Model):
     tracking service. Anonymous events (pre-login) are correlated via
     anon_id, a random id the frontend keeps in localStorage."""
 
-    name = models.CharField(max_length=64, db_index=True)
+    name = models.CharField(max_length=64, db_index=True, verbose_name="Hodisa nomi")
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="analytics_events"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="analytics_events",
+        verbose_name="Foydalanuvchi",
     )
-    anon_id = models.CharField(max_length=64, blank=True, db_index=True)
-    properties = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    anon_id = models.CharField(max_length=64, blank=True, db_index=True, verbose_name="Anonim ID")
+    properties = models.JSONField(default=dict, blank=True, verbose_name="Xususiyatlar")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Yaratilgan vaqti")
 
     class Meta:
         verbose_name = "Analitika hodisasi"
