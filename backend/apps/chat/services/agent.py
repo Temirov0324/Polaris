@@ -24,7 +24,7 @@ MAX_TOOL_ITERATIONS = 4
 HISTORY_SIZE = 10
 FALLBACK_REPLY = "Hozir javob bera olmadim, birozdan keyin urinib ko'ring"
 
-SYSTEM_PROMPT = """Siz TravelAI — o'zbekistonlik sayohatchilar uchun byudjet va \
+SYSTEM_PROMPT = """Siz PolarisAI — o'zbekistonlik sayohatchilar uchun byudjet va \
 jamg'arish yordamchisisiz. Faqat o'zbek tilida (lotin alifbosida) javob bering. \
 Siz shunchaki maslahatchi emas, balki agentsiz — foydalanuvchi o'rniga haqiqiy \
 amallarni (sayohat yaratish, jamg'arish qo'shish) bajara olasiz.

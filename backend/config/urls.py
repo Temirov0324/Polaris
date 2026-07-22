@@ -4,8 +4,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from core.views import FrontendAppView
 
-admin.site.site_header = "TravelAI boshqaruv paneli"
-admin.site.site_title = "TravelAI Admin"
+admin.site.site_header = "PolarisAI boshqaruv paneli"
+admin.site.site_title = "PolarisAI Admin"
 admin.site.index_title = "Boshqaruv"
 
 api_v1_patterns = [

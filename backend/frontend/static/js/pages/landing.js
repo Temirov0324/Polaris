@@ -6,9 +6,9 @@ window.pages.landing = function renderLanding() {
       <section class="landing__hero">
         <div class="landing__blob landing__blob--a"></div>
         <div class="landing__blob landing__blob--b"></div>
-        <span class="landing__eyebrow">✈️ TravelAI</span>
+        <span class="landing__eyebrow">✈️ PolarisAI</span>
         <h1>Sayohat orzu emas, reja</h1>
-        <p>TravelAI — sayohat byudjetingizni hisoblaydi va jamg'arish rejangizni tuzadi.</p>
+        <p>PolarisAI — sayohat byudjetingizni hisoblaydi va jamg'arish rejangizni tuzadi.</p>
         <div class="landing__cta">
           <a class="btn btn--primary btn--large" href="#/register">Boshlash</a>
           <a class="btn btn--ghost btn--large" href="#/login">Kirish</a>

@@ -28,6 +28,18 @@ window.pages.chat = async function renderChat() {
   renderMessages();
 
   if (history.length === 0) {
+    messagesEl.innerHTML = `
+      <div class="chat-bubble chat-bubble--assistant chat-bubble--welcome">
+        Salom! Men PolarisAI yordamchisiman. Sizga quyidagilarda yordam bera olaman:
+        <ul>
+          <li>Sayohat byudjetini hisoblash</li>
+          <li>Byudjetingizga mos yo'nalish tavsiya qilish</li>
+          <li>Viza talablari haqida ma'lumot berish</li>
+          <li>Sayohat rejasi yaratish va jamg'arish qo'shish — to'g'ridan-to'g'ri shu yerda, yozib ayting</li>
+        </ul>
+        Quyidagi tugmalardan birini bosing yoki savolingizni yozing.
+      </div>
+    `;
     const suggestions = ["$1000 bilan qayerga bora olaman?", "Turkiyaga qancha kerak?", "Vizasiz davlatlar qaysilar?"];
     suggestionsEl.innerHTML = suggestions.map((s) => `<button type="button" class="chip">${s}</button>`).join("");
     suggestionsEl.querySelectorAll(".chip").forEach((chip) => {

@@ -17,7 +17,7 @@ function renderNav() {
 
   nav.innerHTML = `
     <div class="nav__inner">
-      <a class="nav__brand" href="#/dashboard">TravelAI</a>
+      <a class="nav__brand" href="#/dashboard">PolarisAI</a>
       <nav class="nav__links">
         ${links
           .map(

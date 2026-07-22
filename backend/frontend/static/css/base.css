@@ -79,6 +79,10 @@ button {
   font-size: 0.9rem;
 }
 
+.empty-hint--spaced {
+  margin-top: 0.9rem;
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

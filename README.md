@@ -1,4 +1,4 @@
-# TravelAI
+# PolarisAI
 
 Sayohat byudjetini hisoblab beruvchi va jamg'arish rejasini boshqaruvchi veb-ilova + AI chat.
 To'liq texnik topshiriq: [TEXNIK_TOPSHIRIQ.md](TEXNIK_TOPSHIRIQ.md).

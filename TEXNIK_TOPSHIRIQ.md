@@ -1,4 +1,4 @@
-# TravelAI — Texnik Topshiriq (V1 MVP, Web versiya)
+# PolarisAI — Texnik Topshiriq (V1 MVP, Web versiya)
 
 > Bu hujjat Claude Code uchun mo'ljallangan. Har bir bo'lim mustaqil vazifa sifatida
 > berilishi mumkin. Bosqichma-bosqich boring — hammasini bir buyruqda bermang.

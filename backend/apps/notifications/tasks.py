@@ -30,11 +30,11 @@ def daily_saving_reminder():
         if plan.days_left <= 0 or plan.remaining <= 0:
             continue
         send_mail(
-            subject="TravelAI — bugungi jamg'arish eslatmasi",
+            subject="PolarisAI — bugungi jamg'arish eslatmasi",
             message=(
                 f"Salom {trip.user.full_name}!\n\n"
                 f"Bugun ${plan.per_day} jamg'arishni unutmang. "
-                f"{trip.destination.city_uz}gacha {plan.days_left} kun qoldi.\n\n— TravelAI"
+                f"{trip.destination.city_uz}gacha {plan.days_left} kun qoldi.\n\n— PolarisAI"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[trip.user.email],
@@ -53,10 +53,10 @@ def weekly_progress():
         plan = get_saving_plan(trip)
         week_total = trip.saving_entries.filter(date__gte=week_ago).aggregate(total=Sum("amount"))["total"] or 0
         send_mail(
-            subject="TravelAI — haftalik hisobot",
+            subject="PolarisAI — haftalik hisobot",
             message=(
                 f"Salom {trip.user.full_name}!\n\n"
-                f"Bu hafta ${week_total} yig'dingiz. Maqsadning {plan.progress_pct}%i bajarildi.\n\n— TravelAI"
+                f"Bu hafta ${week_total} yig'dingiz. Maqsadning {plan.progress_pct}%i bajarildi.\n\n— PolarisAI"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[trip.user.email],
@@ -81,11 +81,11 @@ def streak_warning():
             continue
 
         send_mail(
-            subject="TravelAI — streak'ingiz xavf ostida!",
+            subject="PolarisAI — streak'ingiz xavf ostida!",
             message=(
                 f"Salom {trip.user.full_name}!\n\n"
                 f"{streak_through_yesterday} kunlik jamg'arish streak'ingizni yo'qotmang — "
-                f"bugun hali yozuv qo'shmadingiz.\n\n— TravelAI"
+                f"bugun hali yozuv qo'shmadingiz.\n\n— PolarisAI"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[trip.user.email],

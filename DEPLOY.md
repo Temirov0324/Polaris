@@ -1,4 +1,4 @@
-# TravelAI — VPS'ga deploy qilish qo'llanmasi
+# PolarisAI — VPS'ga deploy qilish qo'llanmasi
 
 Bu qo'llanma **Ubuntu 22.04/24.04** VPS uchun yozilgan (DigitalOcean, Hetzner va
 shunga o'xshash provayderlarda standart tanlov). Boshqa distributivda buyruqlar

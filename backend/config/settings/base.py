@@ -1,5 +1,5 @@
 """
-Base Django settings for the TravelAI project.
+Base Django settings for the PolarisAI project.
 
 Shared between dev.py and prod.py. Never import this module directly in
 manage.py / wsgi.py — use DJANGO_SETTINGS_MODULE=config.settings.dev|prod.
@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "TravelAI API",
+    "TITLE": "PolarisAI API",
     "DESCRIPTION": "Sayohat byudjeti va jamg'arish rejasi API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
@@ -169,4 +169,4 @@ GEMINI_MODEL = env("GEMINI_MODEL", default="gemini-3.6-flash")
 # --- Email (dev reminders) ------------------------------------------------
 
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="TravelAI <noreply@travelai.local>")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="PolarisAI <noreply@polarisai.local>")

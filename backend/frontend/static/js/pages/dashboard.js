@@ -13,8 +13,9 @@ window.pages.dashboard = async function renderDashboard() {
       <div class="page page--empty">
         <div class="empty-state card">
           <h2>Hali sayohat rejangiz yo'q</h2>
-          <p>Birinchi sayohatingizni rejalashtiring — byudjetni hisoblab beramiz.</p>
-          <a class="btn btn--primary" href="#/trips/new">Sayohat rejasi yaratish</a>
+          <p>3 ta qadam — yo'nalish, sana, uslub — va biz byudjetingizni hisoblab beramiz.</p>
+          <a class="btn btn--primary btn--block" href="#/trips/new">Sayohat rejasi yaratish</a>
+          <p class="empty-hint empty-hint--spaced">yoki <a href="#/chat">AI chatdan so'rang</a> — masalan "Turkiyaga 7 kunga qancha kerak?"</p>
         </div>
       </div>
     `;
