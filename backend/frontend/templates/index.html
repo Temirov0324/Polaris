@@ -11,6 +11,9 @@
   <meta property="og:title" content="PolarisAI — Sayohat byudjeti va jamg'arish rejasi" />
   <meta property="og:description" content="Sayohat byudjetingizni hisoblang, jamg'arish rejangizni tuzing va AI yordamchidan foydalaning." />
   <meta name="twitter:card" content="summary" />
+  <link rel="manifest" href="{% static 'manifest.json' %}?v={{ static_version }}" />
+  <link rel="icon" href="{% static 'img/favicon-32.png' %}?v={{ static_version }}" />
+  <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}?v={{ static_version }}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ static_version }}" />
   <link rel="stylesheet" href="{% static 'css/components.css' %}?v={{ static_version }}" />
   <link rel="stylesheet" href="{% static 'css/pages.css' %}?v={{ static_version }}" />
@@ -39,5 +42,10 @@
   <script src="{% static 'js/pages/chat.js' %}?v={{ static_version }}"></script>
   <script src="{% static 'js/pages/profile.js' %}?v={{ static_version }}"></script>
   <script src="{% static 'js/router.js' %}?v={{ static_version }}"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
+    }
+  </script>
 </body>
 </html>
