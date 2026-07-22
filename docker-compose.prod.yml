@@ -83,8 +83,16 @@ services:
     depends_on:
       - web
     restart: unless-stopped
+    networks:
+      - default
+      - shared_web
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
+
+networks:
+  default:
+  shared_web:
+    external: true
