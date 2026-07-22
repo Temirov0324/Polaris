@@ -75,7 +75,7 @@ window.pages.profile = async function renderProfile() {
     const submitBtn = form.querySelector("button[type=submit]");
     submitBtn.disabled = true;
     try {
-      await api.patch("/auth/me/", {
+      const res = await api.patch("/auth/me/", {
         full_name: form.full_name.value.trim(),
         email: form.email.value.trim(),
         home_city: form.home_city.value.trim(),
@@ -84,6 +84,7 @@ window.pages.profile = async function renderProfile() {
         notify_weekly: form.notify_weekly.checked,
         notify_streak: form.notify_streak.checked,
       });
+      state.user = res.data;
       showToast("Saqlandi!", "success");
     } catch (err) {
       showToast(err.message);

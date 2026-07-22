@@ -17,8 +17,20 @@ async function loadCurrentUser() {
   return state.user;
 }
 
-function formatUsd(amount) {
-  const n = Number(amount);
+/* Static rate — good enough for V1 display purposes (not used for any real
+   money movement, only formatting amounts that are always stored/computed
+   in USD). Revisit if/when a live FX source is wired up. */
+const USD_TO_UZS_RATE = 12700;
+
+/* All amounts everywhere (budget, savings, target) are stored and computed
+   in USD. This only converts how they're *displayed*, based on the logged-in
+   user's chosen currency. */
+function formatUsd(amountUsd) {
+  const n = Number(amountUsd);
+  if (state.user?.currency === "UZS") {
+    const uzs = Math.round(n * USD_TO_UZS_RATE);
+    return `${uzs.toLocaleString("en-US")} so'm`;
+  }
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
