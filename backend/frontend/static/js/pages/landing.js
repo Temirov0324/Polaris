@@ -31,6 +31,11 @@ window.pages.landing = function renderLanding() {
           <p>Byudjet, yo'nalish va viza savollariga darhol javob oling.</p>
         </div>
       </section>
+      <footer class="landing__footer">
+        <a href="#/privacy">Maxfiylik siyosati</a>
+        <span class="landing__footer-sep">&middot;</span>
+        <a href="#/terms">Foydalanish shartlari</a>
+      </footer>
     </div>
   `;
 };

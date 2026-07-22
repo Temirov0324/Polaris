@@ -59,6 +59,10 @@ window.pages.register = function renderRegister() {
             <input type="password" name="password" class="input" required minlength="8" />
           </label>
           <button class="btn btn--primary btn--block" type="submit">Kod yuborish</button>
+          <p class="auth-card__legal">
+            Davom etish orqali siz <a href="#/terms">Foydalanish shartlari</a> va
+            <a href="#/privacy">Maxfiylik siyosati</a>ga rozilik bildirasiz.
+          </p>
           <p class="auth-card__switch">Hisobingiz bormi? <a href="#/login">Kirish</a></p>
         </form>
       </div>
