@@ -316,6 +316,16 @@
   margin-bottom: 1.25rem;
 }
 
+/* --- Home (destination browser) --- */
+.home-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.home-page h2 {
+  margin-bottom: 1rem;
+}
+
 /* --- Wizard --- */
 .wizard {
   max-width: 480px;

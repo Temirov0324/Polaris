@@ -1,10 +1,15 @@
 window.pages = window.pages || {};
 
 window.pages.tripWizard = function renderTripWizard() {
+  // Bosh sahifadan shahar tanlab kelingan bo'lsa, izlash qadamini
+  // o'tkazib yuborib to'g'ridan-to'g'ri sana bosqichidan boshlaymiz.
+  const prefilled = window.pendingTripDestination || null;
+  window.pendingTripDestination = null;
+
   const wizard = {
-    step: 1,
+    step: prefilled ? 2 : 1,
     data: {
-      destination: null,
+      destination: prefilled,
       start_date: "",
       duration_days: 5,
       travelers_count: 1,
@@ -298,7 +303,7 @@ async function renderWizardResult(el, wizard) {
         target_amount: targetAmount,
       });
       showToast("Sayohat rejasi yaratildi!", "success");
-      location.hash = "#/dashboard";
+      location.hash = "#/goal";
     } catch (err) {
       showToast(err.message);
       submitBtn.disabled = false;

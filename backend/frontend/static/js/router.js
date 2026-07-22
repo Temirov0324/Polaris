@@ -6,6 +6,7 @@ const routes = [
   { pattern: /^#\/privacy\/?$/, page: () => window.pages.privacy(), public: true },
   { pattern: /^#\/terms\/?$/, page: () => window.pages.terms(), public: true },
   { pattern: /^#\/dashboard\/?$/, page: () => window.pages.dashboard() },
+  { pattern: /^#\/goal\/?$/, page: () => window.pages.goal() },
   { pattern: /^#\/trips\/new\/?$/, page: () => window.pages.tripWizard() },
   { pattern: /^#\/trips\/(\d+)\/savings\/?$/, page: (m) => window.pages.savings(Number(m[1])) },
   { pattern: /^#\/chat\/?$/, page: () => window.pages.chat() },

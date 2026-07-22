@@ -11,6 +11,7 @@ function renderNav() {
   const current = location.hash || "#/dashboard";
   const links = [
     { href: "#/dashboard", label: "Bosh sahifa" },
+    { href: "#/goal", label: "Mening maqsadim" },
     { href: "#/chat", label: "AI Chat" },
     { href: "#/profile", label: "Profil" },
   ];

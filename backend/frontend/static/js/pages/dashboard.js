@@ -1,125 +1,67 @@
 window.pages = window.pages || {};
 
-window.pages.dashboard = async function renderDashboard(selectedTripId) {
+/* This is the permanent "Bosh sahifa" landing view for logged-in users —
+   it always shows the destination browser, regardless of whether the user
+   already has an active goal. The goal/progress view lives at #/goal,
+   reached only via the dedicated nav link — kirganda doim bir xil sahifa
+   ko'rinishi kerak edi, oldin faol maqsad bo'lsa to'g'ridan-to'g'ri unga
+   tushib qolardi. */
+window.pages.dashboard = function renderDashboard() {
   const app = document.getElementById("app");
-  app.innerHTML = '<div class="page"><p class="loading">Yuklanmoqda&hellip;</p></div>';
-
-  const tripsRes = await api.get("/trips/");
-  const trips = tripsRes.data;
-  const activeTrips = trips.filter((t) => ["planning", "saving"].includes(t.status));
-
-  if (!activeTrips.length) {
-    app.innerHTML = `
-      <div class="page page--empty">
-        <div class="empty-state card">
-          <h2>Hali sayohat rejangiz yo'q</h2>
-          <p>3 ta qadam — yo'nalish, sana, uslub — va biz byudjetingizni hisoblab beramiz.</p>
-          <a class="btn btn--primary btn--block" href="#/trips/new">Sayohat rejasi yaratish</a>
-          <p class="empty-hint empty-hint--spaced">yoki <a href="#/chat">AI chatdan so'rang</a> — masalan "Turkiyaga 7 kunga qancha kerak?"</p>
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  const activeTrip = activeTrips.find((t) => t.id === selectedTripId) || activeTrips[0];
-
-  const [planRes, statsRes] = await Promise.all([
-    api.get(`/trips/${activeTrip.id}/plan/`),
-    api.get(`/trips/${activeTrip.id}/savings/stats/`),
-  ]);
-  const plan = planRes.data;
-  const stats = statsRes.data;
-  const hasTarget = activeTrip.target_amount != null && plan.progress_pct !== undefined;
-
-  const daysLeft = Math.max(0, Math.ceil((new Date(activeTrip.start_date) - new Date()) / 86400000));
-
-  const heroImage = activeTrip.destination_detail.image_url;
-
-  const switcherHtml =
-    activeTrips.length > 1
-      ? `
-    <div class="trip-switcher">
-      ${activeTrips
-        .map(
-          (t) => `
-        <button type="button" class="chip ${t.id === activeTrip.id ? "chip--active" : ""}" data-id="${t.id}">
-          ${escapeHtml(t.destination_detail.city_uz)}
-        </button>
-      `
-        )
-        .join("")}
-      <a class="chip chip--add" href="#/trips/new">+ Yangi</a>
-    </div>
-  `
-      : "";
-
   app.innerHTML = `
-    <div class="page dashboard">
-      ${switcherHtml}
-      ${heroImage ? `<div class="dashboard__banner" style="background-image:url('${escapeHtml(heroImage)}')"></div>` : ""}
-      <div class="dashboard__hero card">
-        <div class="dashboard__ring">
-          <canvas id="progress-ring" width="140" height="140"></canvas>
-          <div class="dashboard__ring-label">
-            <strong>${hasTarget ? Math.round(plan.progress_pct) : 0}%</strong>
-            <span>bajarildi</span>
-          </div>
-        </div>
-        <div class="dashboard__info">
-          <h2>${escapeHtml(activeTrip.destination_detail.city_uz)}</h2>
-          <p>${daysLeft} kun qoldi &middot; ${escapeHtml(activeTrip.destination_detail.country_name)}</p>
-          <div class="dashboard__streak">🔥 ${stats.streak} kun</div>
-        </div>
-      </div>
-
-      ${
-        hasTarget
-          ? `
-        <div class="dashboard__stats">
-          <div class="stat-tile"><span>Yig'ilgan</span><strong>${formatUsd(plan.saved)}</strong></div>
-          <div class="stat-tile"><span>Maqsad</span><strong>${formatUsd(activeTrip.target_amount)}</strong></div>
-          <div class="stat-tile"><span>Qolgan</span><strong>${formatUsd(plan.remaining)}</strong></div>
-        </div>
-        <p class="dashboard__hint">Kuniga taxminan <strong>${formatUsd(plan.per_day)}</strong> jamg'aring.</p>
-      `
-          : `
-        <p class="dashboard__hint">Byudjet diapazoni: ${formatUsd(activeTrip.budget_min)} – ${formatUsd(activeTrip.budget_max)}.</p>
-      `
-      }
-
-      <button class="btn btn--primary btn--block btn--large" id="add-saving-btn">Bugun jamg'ardim</button>
-      <a class="btn btn--ghost btn--block" href="#/trips/${activeTrip.id}/savings">Jamg'arish tarixi</a>
-
-      <div class="dashboard__trip-actions">
-        <button type="button" class="link-btn" id="edit-trip-btn">Maqsadni tahrirlash</button>
-        <button type="button" class="link-btn link-btn--danger" id="cancel-trip-btn">Sayohatni bekor qilish</button>
-      </div>
+    <div class="page home-page">
+      <h2>Qayerga borishni xohlaysiz?</h2>
+      <input type="search" id="home-dest-search" class="input" placeholder="Shahar qidirish..." />
+      <div class="destination-grid" id="home-dest-grid"><p class="loading">Yuklanmoqda&hellip;</p></div>
     </div>
   `;
 
-  drawProgressRing(document.getElementById("progress-ring"), hasTarget ? plan.progress_pct : 0);
-
-  app.querySelectorAll(".trip-switcher .chip[data-id]").forEach((pill) => {
-    pill.addEventListener("click", () => window.pages.dashboard(Number(pill.dataset.id)));
-  });
-
-  document.getElementById("add-saving-btn").addEventListener("click", () => {
-    openSavingModal(activeTrip.id, { onSaved: () => window.pages.dashboard(activeTrip.id) });
-  });
-
-  document.getElementById("edit-trip-btn").addEventListener("click", () => {
-    openTripEditModal(activeTrip, { onSaved: () => window.pages.dashboard(activeTrip.id) });
-  });
-
-  document.getElementById("cancel-trip-btn").addEventListener("click", async () => {
-    if (!confirm("Bu sayohatni bekor qilishni tasdiqlaysizmi?")) return;
+  async function loadDestinations(search) {
+    const grid = document.getElementById("home-dest-grid");
     try {
-      await api.patch(`/trips/${activeTrip.id}/`, { status: "cancelled" });
-      showToast("Sayohat bekor qilindi", "success");
-      window.pages.dashboard();
+      const query = search ? `?search=${encodeURIComponent(search)}` : "?popular=true";
+      const res = await api.get(`/destinations/${query}`);
+      const items = res.data;
+      if (!items.length) {
+        grid.innerHTML = '<p class="empty-hint">Hech narsa topilmadi</p>';
+        return;
+      }
+      grid.innerHTML = items
+        .map(
+          (d) => `
+        <button type="button" class="destination-card" data-id="${d.id}" data-city="${escapeHtml(d.city_uz)}" data-country="${escapeHtml(d.country_name)}">
+          <div class="destination-card__image" style="${d.image_url ? `background-image:url('${escapeHtml(d.image_url)}')` : ""}">
+            ${d.is_popular ? '<span class="badge-popular">🔥 Mashhur</span>' : ""}
+          </div>
+          <div class="destination-card__body">
+            <strong>${escapeHtml(d.city_uz)}</strong>
+            <span>${escapeHtml(d.country_name)}</span>
+          </div>
+        </button>
+      `
+        )
+        .join("");
+      grid.querySelectorAll(".destination-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          window.pendingTripDestination = {
+            id: Number(card.dataset.id),
+            city_uz: card.dataset.city,
+            country_name: card.dataset.country,
+          };
+          location.hash = "#/trips/new";
+        });
+      });
     } catch (err) {
-      showToast(err.message);
+      grid.innerHTML = `<p class="error-text">Xatolik: ${escapeHtml(err.message)}</p>`;
     }
+  }
+
+  loadDestinations();
+
+  let debounceTimer;
+  document.getElementById("home-dest-search").addEventListener("input", (e) => {
+    clearTimeout(debounceTimer);
+    const value = e.target.value.trim();
+    debounceTimer = setTimeout(() => loadDestinations(value), 300);
   });
 };
