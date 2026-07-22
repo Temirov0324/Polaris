@@ -1,0 +1,135 @@
+/* Retunes the Jazzmin "darkly" theme to PolarisAI's own palette
+   (see frontend/static/css/base.css --color-* tokens) instead of
+   generic Bootswatch defaults. */
+
+:root {
+  --polaris-bg: #0b1220;
+  --polaris-surface: #141d2e;
+  --polaris-surface-raised: #1a2436;
+  --polaris-border: #263449;
+  --polaris-text: #e7ebf3;
+  --polaris-text-muted: #8f9cb3;
+  --polaris-primary: #3b82f6;
+  --polaris-primary-dark: #2563eb;
+  --polaris-success: #34d399;
+  --polaris-danger: #f87171;
+}
+
+body,
+.wrapper {
+  background-color: var(--polaris-bg) !important;
+  font-family: "Inter", "Manrope", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+.app-wrapper,
+.content-wrapper,
+.app-content,
+.app-content-header,
+.card,
+.main-footer,
+.app-footer {
+  background-color: var(--polaris-bg) !important;
+  color: var(--polaris-text);
+}
+
+.app-content-header {
+  border-bottom: 1px solid var(--polaris-border) !important;
+}
+
+.app-content-header .breadcrumb-item,
+.app-content-header .breadcrumb-item a {
+  color: var(--polaris-text-muted) !important;
+}
+
+.app-content-header .breadcrumb-item.active {
+  color: var(--polaris-text) !important;
+}
+
+#content-related .module {
+  background-color: var(--polaris-surface) !important;
+  color: var(--polaris-text) !important;
+  border: 1px solid var(--polaris-border);
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+.card {
+  border: 1px solid var(--polaris-border) !important;
+  background-color: var(--polaris-surface) !important;
+}
+
+.main-header.navbar {
+  background-color: var(--polaris-surface-raised) !important;
+  border-bottom: 1px solid var(--polaris-border) !important;
+}
+
+.main-sidebar,
+.main-sidebar .nav-sidebar,
+body.sidebar-dark-primary .brand-link {
+  background-color: var(--polaris-surface-raised) !important;
+  border-right: 1px solid var(--polaris-border) !important;
+}
+
+.brand-link {
+  color: var(--polaris-primary) !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.nav-sidebar > .nav-item > .nav-link.active,
+.nav-sidebar > .nav-item > .nav-link:hover {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: var(--polaris-primary) !important;
+}
+
+a,
+.btn-link {
+  color: var(--polaris-primary);
+}
+
+.btn-primary,
+.bg-primary {
+  background-color: var(--polaris-primary) !important;
+  border-color: var(--polaris-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--polaris-primary-dark) !important;
+  border-color: var(--polaris-primary-dark) !important;
+}
+
+.btn-success,
+.bg-success {
+  background-color: var(--polaris-success) !important;
+  border-color: var(--polaris-success) !important;
+}
+
+.btn-danger,
+.bg-danger {
+  background-color: var(--polaris-danger) !important;
+  border-color: var(--polaris-danger) !important;
+}
+
+.small-box,
+.info-box {
+  background-color: var(--polaris-surface) !important;
+  border: 1px solid var(--polaris-border);
+}
+
+table.table thead th,
+.card-header {
+  background-color: var(--polaris-surface-raised) !important;
+  color: var(--polaris-text) !important;
+  border-color: var(--polaris-border) !important;
+}
+
+.form-control,
+.select2-selection {
+  background-color: var(--polaris-surface) !important;
+  border-color: var(--polaris-border) !important;
+  color: var(--polaris-text) !important;
+}
+
+::placeholder {
+  color: var(--polaris-text-muted) !important;
+}

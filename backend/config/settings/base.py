@@ -23,6 +23,7 @@ DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -95,6 +96,14 @@ LANGUAGE_CODE = "uz"
 TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
+
+# The site itself authenticates via JWT-in-cookie (see apps.users), not
+# Django sessions — session login is only ever used for /admin/, whose
+# Jazzmin login template doesn't render a "next" field, so the default
+# LOGIN_REDIRECT_URL ("/accounts/profile/") would otherwise land users
+# back on the public frontend.
+LOGIN_REDIRECT_URL = "/admin/"
+LOGOUT_REDIRECT_URL = "/admin/login/"
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -208,3 +217,66 @@ if SENTRY_DSN:
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
 TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="")
 TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="")
+
+# --- Admin panel look & feel (Jazzmin) --------------------------------------
+
+JAZZMIN_SETTINGS = {
+    "site_title": "PolarisAI Admin",
+    "site_header": "PolarisAI",
+    "site_brand": "PolarisAI",
+    "welcome_sign": "PolarisAI boshqaruv paneliga xush kelibsiz",
+    "copyright": "PolarisAI",
+    "search_model": ["users.User", "trips.Trip", "destinations.Destination"],
+    "topmenu_links": [
+        {"name": "Saytni ko'rish", "url": "/", "new_window": True},
+        {"model": "users.User"},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": False,
+    "order_with_respect_to": [
+        "analytics",
+        "users",
+        "trips",
+        "savings",
+        "destinations",
+        "chat",
+        "auth",
+        "django_celery_beat",
+        "token_blacklist",
+    ],
+    "icons": {
+        "auth.Group": "fas fa-users-cog",
+        "users.User": "fas fa-user-astronaut",
+        "trips.Trip": "fas fa-route",
+        "trips.TripMember": "fas fa-user-friends",
+        "savings.SavingEntry": "fas fa-piggy-bank",
+        "destinations.Destination": "fas fa-map-marker-alt",
+        "destinations.Country": "fas fa-flag",
+        "destinations.PriceReference": "fas fa-tags",
+        "chat.ChatMessage": "fas fa-comments",
+        "analytics.AnalyticsEvent": "fas fa-chart-line",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "custom_css": "css/admin-polaris.css",
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "brand_colour": "navbar-dark",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": True,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_flat_style": True,
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "actions_sticky_top": True,
+}
