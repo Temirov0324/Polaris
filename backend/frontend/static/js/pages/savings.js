@@ -92,7 +92,22 @@ window.pages.savings = async function renderSavings(tripId) {
           <div class="calendar-grid" id="calendar-grid"></div>
         </div>
 
-        <button type="button" class="btn btn--primary btn--block btn--large" id="add-btn">+ Jamg'arish qo'shish</button>
+        ${
+          trip.status === "cancelled"
+            ? `
+          <div class="card trip-status-notice">
+            <p>Bu sayohat bekor qilingan — jamg'arish qo'shish uchun avval uni tiklang.</p>
+            ${isOwner ? '<button type="button" class="btn btn--primary btn--block" id="restore-btn">Sayohatni tiklash</button>' : ""}
+          </div>
+        `
+            : trip.status === "completed"
+              ? `
+          <div class="card trip-status-notice">
+            <p>Bu sayohat yakunlangan.</p>
+          </div>
+        `
+              : `<button type="button" class="btn btn--primary btn--block btn--large" id="add-btn">+ Jamg'arish qo'shish</button>`
+        }
 
         <div class="card members-card">
           <h3>A'zolar${members.length > 1 ? ` (${members.length})` : ""}</h3>
@@ -126,8 +141,18 @@ window.pages.savings = async function renderSavings(tripId) {
 
     renderCalendar();
 
-    document.getElementById("add-btn").addEventListener("click", () => {
+    document.getElementById("add-btn")?.addEventListener("click", () => {
       openSavingModal(tripId, { onSaved: reload });
+    });
+
+    document.getElementById("restore-btn")?.addEventListener("click", async () => {
+      try {
+        await api.patch(`/trips/${tripId}/`, { status: "planning" });
+        showToast("Sayohat tiklandi", "success");
+        reload();
+      } catch (err) {
+        showToast(err.message);
+      }
     });
 
     app.querySelectorAll(".entry-row__delete[data-id]").forEach((btn) => {
@@ -176,7 +201,8 @@ window.pages.savings = async function renderSavings(tripId) {
   }
 
   async function reload() {
-    [entries, stats, members] = await Promise.all([
+    [trip, entries, stats, members] = await Promise.all([
+      api.get(`/trips/${tripId}/`).then((r) => r.data),
       api.get(`/trips/${tripId}/savings/`).then((r) => r.data),
       api.get(`/trips/${tripId}/savings/stats/`).then((r) => r.data),
       api.get(`/trips/${tripId}/members/`).then((r) => r.data),

@@ -221,6 +221,49 @@ class TestGroupSavingEntries:
 
 
 @pytest.mark.django_db
+class TestCancelledTripBlocksNewSavings:
+    def test_cannot_add_entry_to_cancelled_trip(self, destination):
+        owner = _user("+998900000140")
+        trip = _trip(owner, destination)
+        trip.status = Trip.Status.CANCELLED
+        trip.save(update_fields=["status"])
+
+        res = _client_for(owner).post(
+            f"/api/v1/trips/{trip.id}/savings/", {"amount": "10", "date": date.today().isoformat()}, format="json"
+        )
+
+        assert res.status_code == 400
+        assert not SavingEntry.objects.filter(trip=trip).exists()
+
+    def test_cannot_add_entry_to_completed_trip(self, destination):
+        owner = _user("+998900000141")
+        trip = _trip(owner, destination)
+        trip.status = Trip.Status.COMPLETED
+        trip.save(update_fields=["status"])
+
+        res = _client_for(owner).post(
+            f"/api/v1/trips/{trip.id}/savings/", {"amount": "10", "date": date.today().isoformat()}, format="json"
+        )
+
+        assert res.status_code == 400
+
+    def test_restoring_a_cancelled_trip_allows_saving_again(self, destination):
+        owner = _user("+998900000142")
+        trip = _trip(owner, destination)
+        trip.status = Trip.Status.CANCELLED
+        trip.save(update_fields=["status"])
+        client = _client_for(owner)
+
+        restore_res = client.patch(f"/api/v1/trips/{trip.id}/", {"status": "planning"}, format="json")
+        assert restore_res.status_code == 200
+
+        add_res = client.post(
+            f"/api/v1/trips/{trip.id}/savings/", {"amount": "10", "date": date.today().isoformat()}, format="json"
+        )
+        assert add_res.status_code == 201
+
+
+@pytest.mark.django_db
 class TestTripMembersListAndRemove:
     def test_members_endpoint_lists_owner_and_members_with_totals(self, destination):
         owner = _user("+998900000130")

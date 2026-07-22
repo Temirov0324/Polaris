@@ -548,6 +548,19 @@
   margin-bottom: 1.25rem;
 }
 
+.trip-status-notice {
+  text-align: center;
+}
+
+.trip-status-notice p {
+  color: var(--color-text-muted);
+  margin-bottom: 0.9rem;
+}
+
+.trip-status-notice:has(p:only-child) p {
+  margin-bottom: 0;
+}
+
 .members-card h3 {
   font-size: 0.95rem;
   color: var(--color-text-muted);

@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from apps.trips.models import Trip, TripMember
@@ -26,6 +27,9 @@ class SavingEntryListCreateView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         trip = self.get_trip()
+        if trip.status not in (Trip.Status.PLANNING, Trip.Status.SAVING):
+            raise ValidationError("Bu sayohat bekor qilingan yoki yakunlangan — avval uni tiklang")
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         v = serializer.validated_data
