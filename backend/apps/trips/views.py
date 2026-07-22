@@ -107,10 +107,13 @@ class TripListCreateView(generics.ListCreateAPIView):
 
 class TripDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
-        return (
-            Trip.objects.filter(user=self.request.user)
-            .select_related("destination__country", "breakdown")
-        )
+        # Members can view (GET) a trip they co-fund; only the owner can
+        # edit or cancel it (PATCH/PUT/DELETE).
+        if self.request.method == "GET":
+            base = Trip.visible_to(self.request.user)
+        else:
+            base = Trip.objects.filter(user=self.request.user)
+        return base.select_related("destination__country", "breakdown")
 
     def get_serializer_class(self):
         if self.request.method in ("PATCH", "PUT"):
@@ -126,3 +129,21 @@ class TripDetailView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return envelope(TripSerializer(instance).data)
+
+
+class SharedTripsView(generics.ListAPIView):
+    """Trips the current user co-funds as a TripMember (owned trips are
+    already covered by /trips/) — lets a member find their way to a trip's
+    savings page without needing a manually shared link."""
+
+    serializer_class = TripSerializer
+
+    def get_queryset(self):
+        return (
+            Trip.visible_to(self.request.user)
+            .exclude(user=self.request.user)
+            .select_related("destination__country", "breakdown")
+        )
+
+    def list(self, request, *args, **kwargs):
+        return envelope(self.get_serializer(self.get_queryset(), many=True).data)

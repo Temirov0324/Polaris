@@ -9,4 +9,6 @@ urlpatterns = [
     path("trips/<int:trip_id>/savings/", views.SavingEntryListCreateView.as_view(), name="saving-list"),
     path("trips/<int:trip_id>/savings/stats/", views.SavingStatsView.as_view(), name="saving-stats"),
     path("savings/<int:pk>/", views.SavingEntryDeleteView.as_view(), name="saving-delete"),
+    path("trips/<int:trip_id>/members/", views.TripMembersView.as_view(), name="trip-members"),
+    path("trips/<int:trip_id>/members/<int:user_id>/", views.TripMemberRemoveView.as_view(), name="trip-member-remove"),
 ]

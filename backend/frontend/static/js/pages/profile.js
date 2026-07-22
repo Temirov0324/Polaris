@@ -13,10 +13,12 @@ window.pages.profile = async function renderProfile() {
 
   let user;
   let trips;
+  let sharedTrips;
   try {
-    [user, trips] = await Promise.all([
+    [user, trips, sharedTrips] = await Promise.all([
       api.get("/auth/me/").then((r) => r.data),
       api.get("/trips/").then((r) => r.data),
+      api.get("/trips/shared/").then((r) => r.data),
     ]);
   } catch (err) {
     app.innerHTML = `<div class="page"><p class="error-text">Xatolik: ${escapeHtml(err.message)}</p></div>`;
@@ -67,6 +69,17 @@ window.pages.profile = async function renderProfile() {
       <div class="trip-history">
         ${trips.length === 0 ? '<p class="empty-hint">Hali sayohat yo\'q</p>' : trips.map(tripRow).join("")}
       </div>
+
+      ${
+        sharedTrips.length > 0
+          ? `
+        <h3>Ishtirokchi bo'lgan sayohatlar</h3>
+        <div class="trip-history">
+          ${sharedTrips.map(tripRow).join("")}
+        </div>
+      `
+          : ""
+      }
     </div>
   `;
 

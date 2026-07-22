@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 from apps.destinations.models import Destination
 
@@ -37,6 +38,33 @@ class Trip(models.Model):
 
     def __str__(self):
         return f"{self.user.phone} — {self.destination.city_uz}"
+
+    @staticmethod
+    def visible_to(user):
+        """Trips the user owns or co-funds as a TripMember — used for
+        read/contribute access (savings entries, plan, stats). Editing or
+        cancelling a trip is still owner-only and does NOT use this."""
+        return Trip.objects.filter(Q(user=user) | Q(members__user=user)).distinct()
+
+
+class TripMember(models.Model):
+    """A second (or third...) person co-funding someone else's trip goal.
+    The trip owner is never stored here — they're implicitly a member via
+    Trip.user. Membership grants read access to the trip and the ability to
+    add/see saving entries; only the owner can edit or cancel the trip
+    itself."""
+
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trip_memberships")
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Sayohat a'zosi"
+        verbose_name_plural = "Sayohat a'zolari"
+        unique_together = [("trip", "user")]
+
+    def __str__(self):
+        return f"{self.user.phone} @ {self.trip}"
 
 
 class BudgetBreakdown(models.Model):
