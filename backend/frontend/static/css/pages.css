@@ -191,6 +191,13 @@
   margin: 0 auto;
 }
 
+.trip-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .dashboard__banner {
   height: 140px;
   border-radius: var(--radius-card);

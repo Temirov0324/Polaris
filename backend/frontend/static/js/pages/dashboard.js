@@ -1,14 +1,14 @@
 window.pages = window.pages || {};
 
-window.pages.dashboard = async function renderDashboard() {
+window.pages.dashboard = async function renderDashboard(selectedTripId) {
   const app = document.getElementById("app");
   app.innerHTML = '<div class="page"><p class="loading">Yuklanmoqda&hellip;</p></div>';
 
   const tripsRes = await api.get("/trips/");
   const trips = tripsRes.data;
-  const activeTrip = trips.find((t) => ["planning", "saving"].includes(t.status));
+  const activeTrips = trips.filter((t) => ["planning", "saving"].includes(t.status));
 
-  if (!activeTrip) {
+  if (!activeTrips.length) {
     app.innerHTML = `
       <div class="page page--empty">
         <div class="empty-state card">
@@ -22,6 +22,8 @@ window.pages.dashboard = async function renderDashboard() {
     return;
   }
 
+  const activeTrip = activeTrips.find((t) => t.id === selectedTripId) || activeTrips[0];
+
   const [planRes, statsRes] = await Promise.all([
     api.get(`/trips/${activeTrip.id}/plan/`),
     api.get(`/trips/${activeTrip.id}/savings/stats/`),
@@ -34,8 +36,27 @@ window.pages.dashboard = async function renderDashboard() {
 
   const heroImage = activeTrip.destination_detail.image_url;
 
+  const switcherHtml =
+    activeTrips.length > 1
+      ? `
+    <div class="trip-switcher">
+      ${activeTrips
+        .map(
+          (t) => `
+        <button type="button" class="chip ${t.id === activeTrip.id ? "chip--active" : ""}" data-id="${t.id}">
+          ${escapeHtml(t.destination_detail.city_uz)}
+        </button>
+      `
+        )
+        .join("")}
+      <a class="chip chip--add" href="#/trips/new">+ Yangi</a>
+    </div>
+  `
+      : "";
+
   app.innerHTML = `
     <div class="page dashboard">
+      ${switcherHtml}
       ${heroImage ? `<div class="dashboard__banner" style="background-image:url('${escapeHtml(heroImage)}')"></div>` : ""}
       <div class="dashboard__hero card">
         <div class="dashboard__ring">
@@ -79,12 +100,16 @@ window.pages.dashboard = async function renderDashboard() {
 
   drawProgressRing(document.getElementById("progress-ring"), hasTarget ? plan.progress_pct : 0);
 
+  app.querySelectorAll(".trip-switcher .chip[data-id]").forEach((pill) => {
+    pill.addEventListener("click", () => window.pages.dashboard(Number(pill.dataset.id)));
+  });
+
   document.getElementById("add-saving-btn").addEventListener("click", () => {
-    openSavingModal(activeTrip.id, { onSaved: () => window.pages.dashboard() });
+    openSavingModal(activeTrip.id, { onSaved: () => window.pages.dashboard(activeTrip.id) });
   });
 
   document.getElementById("edit-trip-btn").addEventListener("click", () => {
-    openTripEditModal(activeTrip, { onSaved: () => window.pages.dashboard() });
+    openTripEditModal(activeTrip, { onSaved: () => window.pages.dashboard(activeTrip.id) });
   });
 
   document.getElementById("cancel-trip-btn").addEventListener("click", async () => {

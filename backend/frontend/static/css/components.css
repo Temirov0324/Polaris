@@ -135,6 +135,17 @@
   color: var(--color-primary);
 }
 
+.chip--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.chip--add {
+  color: var(--color-text-muted);
+}
+
 /* --- Forms --- */
 label {
   display: block;
