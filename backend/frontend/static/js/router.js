@@ -2,6 +2,7 @@ const routes = [
   { pattern: /^#\/?$/, page: () => window.pages.landing(), public: true },
   { pattern: /^#\/login\/?$/, page: () => window.pages.login(), public: true },
   { pattern: /^#\/register\/?$/, page: () => window.pages.register(), public: true },
+  { pattern: /^#\/password-reset\/?$/, page: () => window.pages.passwordReset(), public: true },
   { pattern: /^#\/dashboard\/?$/, page: () => window.pages.dashboard() },
   { pattern: /^#\/trips\/new\/?$/, page: () => window.pages.tripWizard() },
   { pattern: /^#\/trips\/(\d+)\/savings\/?$/, page: (m) => window.pages.savings(Number(m[1])) },
@@ -9,7 +10,7 @@ const routes = [
   { pattern: /^#\/profile\/?$/, page: () => window.pages.profile() },
 ];
 
-const PUBLIC_ONLY_PREFIXES = ["#/login", "#/register"];
+const PUBLIC_ONLY_PREFIXES = ["#/login", "#/register", "#/password-reset"];
 
 async function router() {
   if (!state.authChecked) {

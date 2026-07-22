@@ -1,6 +1,10 @@
+import secrets
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 
 from .managers import UserManager
 
@@ -44,3 +48,46 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.phone
+
+
+class VerificationCode(models.Model):
+    class Purpose(models.TextChoices):
+        REGISTER = "register", "Ro'yxatdan o'tish"
+        PASSWORD_RESET = "password_reset", "Parolni tiklash"
+
+    MAX_ATTEMPTS = 5
+    TTL_MINUTES = 10
+    RESEND_COOLDOWN_SECONDS = 60
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="verification_codes")
+    purpose = models.CharField(max_length=20, choices=Purpose.choices)
+    code = models.CharField(max_length=6)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    used_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def latest_for(cls, user, purpose):
+        return cls.objects.filter(user=user, purpose=purpose).order_by("-created_at").first()
+
+    @classmethod
+    def issue(cls, user, purpose):
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        return cls.objects.create(
+            user=user,
+            purpose=purpose,
+            code=code,
+            expires_at=timezone.now() + timedelta(minutes=cls.TTL_MINUTES),
+        )
+
+    def is_valid(self):
+        return self.used_at is None and self.attempts < self.MAX_ATTEMPTS and timezone.now() < self.expires_at
+
+    def mark_used(self):
+        self.used_at = timezone.now()
+        self.save(update_fields=["used_at"])
+
+    def register_wrong_attempt(self):
+        self.attempts += 1
+        self.save(update_fields=["attempts"])
