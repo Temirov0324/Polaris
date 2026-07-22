@@ -170,3 +170,29 @@ GEMINI_MODEL = env("GEMINI_MODEL", default="gemini-3.6-flash")
 
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="PolarisAI <noreply@polarisai.local>")
+
+# Only used when EMAIL_BACKEND is the smtp backend — e.g. registration/
+# password-reset codes need a real inbox to land in, which the console
+# backend can't do (it just prints to server logs).
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+
+# --- Error tracking (Sentry) ----------------------------------------------
+# Opt-in only: nothing happens unless SENTRY_DSN is set in the environment.
+# Free DSN: https://sentry.io -> New Project -> Django.
+
+SENTRY_DSN = env("SENTRY_DSN", default="")
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        environment=env("SENTRY_ENVIRONMENT", default="production"),
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.1),
+        send_default_pii=False,
+    )

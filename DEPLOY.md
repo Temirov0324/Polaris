@@ -82,6 +82,8 @@ Quyidagilarni to'ldiring:
 | `ALLOWED_HOSTS` | VPS'ingizning IP manzili |
 | `POSTGRES_PASSWORD` **va** `DATABASE_URL`ichidagi parol | Bir xil kuchli parol |
 | `GEMINI_API_KEY` | https://aistudio.google.com/apikey dan olingan kalit |
+| `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` | Real SMTP ma'lumotlari — **shart**, aks holda ro'yxatdan o'tish/parol tiklash kodlari hech kimga yetib bormaydi (`.env.prod.example`dagi Gmail namunasiga qarang) |
+| `SENTRY_DSN` (ixtiyoriy) | https://sentry.io dan bepul olinadigan DSN — xatoliklarni kuzatish uchun |
 
 `DJANGO_SECRET_KEY` yaratish uchun (serverda Python bor):
 
