@@ -76,15 +76,23 @@ services:
   nginx:
     image: nginx:1.27-alpine
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - static_volume:/app/staticfiles:ro
     depends_on:
       - web
     restart: unless-stopped
+    networks:
+      - default
+      - shared_web
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
+
+networks:
+  default:
+  shared_web:
+    external: true
