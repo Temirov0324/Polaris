@@ -10,6 +10,22 @@ from google.genai import types
 
 from apps.destinations.models import Country, Destination, PriceReference
 
+# Generous global sanity bounds (USD) — not destination-specific, just
+# enough to catch obviously wrong numbers (unit confusion, a monthly rent
+# figure typed into a nightly hotel field, a search-grounded hallucination,
+# etc.) before they reach the database.
+PRICE_BOUNDS = {
+    "flight_return_usd": (20, 5000),
+    "hotel_night_econom": (3, 2000),
+    "hotel_night_standard": (3, 2000),
+    "hotel_night_comfort": (3, 2000),
+    "food_day_econom": (2, 500),
+    "food_day_standard": (2, 500),
+    "food_day_comfort": (2, 500),
+    "transport_day_usd": (1, 200),
+    "activity_day_usd": (1, 500),
+}
+
 TOOL_SCHEMAS = [
     {
         "name": "list_countries",
@@ -117,6 +133,28 @@ TOOL_SCHEMAS = [
                 "transport_day_usd",
                 "activity_day_usd",
             ],
+        },
+    },
+    {
+        "name": "research_destinations_online",
+        "description": (
+            "Berilgan davlat uchun internetdan (Google qidiruv orqali) eng yaxshi shaharlar va "
+            "ularning taxminiy narxlari haqida ma'lumot topadi. Bu FAQAT qidiruv — bazaga hech "
+            "narsa yozmaydi. Natijani diqqat bilan o'qib, keyin o'zingiz upsert_* tool'lari bilan "
+            "bazaga qo'shing, va HAR DOIM confidence='low' bilan (chunki bu internetdan topilgan "
+            "taxminiy ma'lumot, direktor bergan ma'lumot emas)."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "country_name": {"type": "string", "description": "Davlat nomi, masalan 'Tailand'"},
+                "city_count": {
+                    "type": "integer",
+                    "description": "Nechta shahar haqida ma'lumot topish kerak (maksimum 10)",
+                    "default": 5,
+                },
+            },
+            "required": ["country_name"],
         },
     },
 ]
@@ -275,6 +313,12 @@ def _tool_upsert_price_reference(
             return {"ok": False, "error": f"{field} noto'g'ri son: {raw}"}
         if amount <= 0:
             return {"ok": False, "error": f"{field} musbat bo'lishi kerak (berilgan: {raw})"}
+        low, high = PRICE_BOUNDS[field]
+        if not (low <= amount <= high):
+            return {
+                "ok": False,
+                "error": f"{field} ishonarli oraliqdan tashqarida: {raw} (kutilgan: ${low}–${high})",
+            }
         values[field] = amount
 
     price_ref, created = PriceReference.objects.update_or_create(
@@ -285,6 +329,15 @@ def _tool_upsert_price_reference(
     return {"ok": True, "created": created, "city": destination.city_uz, "month": month, "confidence": confidence}
 
 
+def _tool_research_destinations_online(country_name, city_count=5):
+    # Local import: research.py imports google.genai at module scope, and
+    # this keeps that dependency out of the hot path for founder-provided-
+    # data requests that never touch it.
+    from .research import run_web_research
+
+    return run_web_research(country_name, city_count)
+
+
 TOOL_HANDLERS = {
     "list_countries": lambda **kw: _tool_list_countries(**kw),
     "upsert_country": lambda **kw: _tool_upsert_country(**kw),
@@ -292,6 +345,7 @@ TOOL_HANDLERS = {
     "upsert_destination": lambda **kw: _tool_upsert_destination(**kw),
     "get_price_status": lambda **kw: _tool_get_price_status(**kw),
     "upsert_price_reference": lambda **kw: _tool_upsert_price_reference(**kw),
+    "research_destinations_online": lambda **kw: _tool_research_destinations_online(**kw),
 }
 
 

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from apps.admin_agent.services.tools import TOOL_HANDLERS, execute_tool
@@ -21,6 +23,9 @@ class TestScopeIsRestrictedToCatalogData:
         # Locks the allowlist down: any new tool must be added here on
         # purpose, so a future edit can't accidentally hand this agent a
         # tool that reaches into User/Trip/SavingEntry/ChatMessage.
+        # research_destinations_online is read-only (Google Search only) —
+        # it never touches the database itself, so it's exempt from the
+        # "writes only to catalog data" concern this test otherwise locks.
         assert set(TOOL_HANDLERS.keys()) == {
             "list_countries",
             "upsert_country",
@@ -28,6 +33,7 @@ class TestScopeIsRestrictedToCatalogData:
             "upsert_destination",
             "get_price_status",
             "upsert_price_reference",
+            "research_destinations_online",
         }
 
 
@@ -225,6 +231,64 @@ class TestUpsertPriceReference:
         )
         assert result["ok"] is False
         assert PriceReference.objects.count() == 0
+
+    def test_rejects_implausibly_high_price(self, destination):
+        result = execute_tool(
+            "upsert_price_reference",
+            {
+                "city": "Istanbul",
+                "month": 7,
+                "flight_return_usd": 220,
+                "hotel_night_econom": 18,
+                "hotel_night_standard": 28,
+                "hotel_night_comfort": 45,
+                "food_day_econom": 12,
+                "food_day_standard": 20,
+                "food_day_comfort": 35,
+                "transport_day_usd": 8,
+                # Looks like a monthly figure typed into a daily field.
+                "activity_day_usd": 50000,
+            },
+        )
+        assert result["ok"] is False
+        assert PriceReference.objects.count() == 0
+
+    def test_rejects_implausibly_low_price(self, destination):
+        result = execute_tool(
+            "upsert_price_reference",
+            {
+                "city": "Istanbul",
+                "month": 7,
+                "flight_return_usd": 220,
+                "hotel_night_econom": 0.5,
+                "hotel_night_standard": 28,
+                "hotel_night_comfort": 45,
+                "food_day_econom": 12,
+                "food_day_standard": 20,
+                "food_day_comfort": 35,
+                "transport_day_usd": 8,
+                "activity_day_usd": 10,
+            },
+        )
+        assert result["ok"] is False
+        assert PriceReference.objects.count() == 0
+
+
+class TestResearchDestinationsOnline:
+    def test_delegates_to_run_web_research(self):
+        with patch("apps.admin_agent.services.research.run_web_research") as mocked:
+            mocked.return_value = {"ok": True, "findings": "...", "sources": []}
+            result = execute_tool("research_destinations_online", {"country_name": "Tailand", "city_count": 5})
+
+        mocked.assert_called_once_with("Tailand", 5)
+        assert result["ok"] is True
+
+    def test_defaults_city_count_when_omitted(self):
+        with patch("apps.admin_agent.services.research.run_web_research") as mocked:
+            mocked.return_value = {"ok": True, "findings": "...", "sources": []}
+            execute_tool("research_destinations_online", {"country_name": "Tailand"})
+
+        mocked.assert_called_once_with("Tailand", 5)
 
 
 @pytest.mark.django_db

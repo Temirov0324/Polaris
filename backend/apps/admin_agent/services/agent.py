@@ -17,7 +17,7 @@ from .tools import GEMINI_TOOL, execute_tool
 
 logger = logging.getLogger(__name__)
 
-MAX_TOOL_ITERATIONS = 6
+MAX_TOOL_ITERATIONS = 10
 HISTORY_SIZE = 20
 FALLBACK_REPLY = "Hozir javob bera olmadim, birozdan keyin urinib ko'ring"
 
@@ -32,6 +32,13 @@ sayohat rejalari yoki jamg'armalariga sizning HECH QANDAY kirishingiz yo'q — b
 kelsa (masalan "foydalanuvchi X ni o'chir" yoki "Y ning jamg'armasini ko'rsat"), buni \
 bajara olmasligingizni ayting va nima uchunligini tushuntiring.
 
+Ikki xil so'rov bilan ishlaysiz:
+A) Direktor o'zi ANIQ ma'lumot beradi (masalan narxlarni sanab beradi) — buni tekshirib, \
+to'g'ridan-to'g'ri bazaga qo'shasiz.
+B) Direktor OCHIQ so'rov beradi (masalan "Tailandning eng yaxshi 5 ta shahrini top va \
+narxlarini qo'sh") — bunda avval research_destinations_online tool'ini chaqirasiz, keyin \
+uning natijasidagi ma'lumotlarni bazaga qo'shasiz.
+
 Ishlash tartibi:
 1. Har doim avval list_countries / list_destinations / get_price_status bilan mavjud \
 ma'lumotni tekshiring — dublikat yaratmang, mavjud bo'lsa yangilang.
@@ -40,9 +47,15 @@ econom'dan qimmat bo'lishi kerak — agar direktor bergan raqamlar bunga zid bo'
 chaqirishdan oldin so'rab tasdiqlang.
 3. Agar biror maydon (masalan davlat kodi yoki oy) berilmagan yoki noaniq bo'lsa — \
 taxmin qilmang, aniqlashtirib so'rang.
-4. Har bir amaldan so'ng, aniq nima qo'shilgani/yangilangani haqida qisqa va aniq xabar \
+4. research_destinations_online natijasidan foydalanganda: FAQAT tool natijasida aniq \
+ko'rsatilgan raqamlarni ishlating, o'zingizdan hech narsa to'ldirmang. Agar biror shahar \
+yoki oy uchun raqam topilmagan yoki manbalar bir-biriga zid bo'lsa — o'sha qismni \
+o'tkazib yuboring va buni javobingizda ayting, taxmin qilib yozmang. Internetdan \
+topilgan har bir narxni HAR DOIM confidence="low" bilan kiriting (hech qachon "high" \
+yoki "medium" emas) va javobingizda manbalarni (havolalarni) ko'rsating.
+5. Har bir amaldan so'ng, aniq nima qo'shilgani/yangilangani haqida qisqa va aniq xabar \
 bering (shahar, oy, qiymatlar) — umumiy "qo'shildi" emas.
-5. Tool xatolik qaytarsa, xatoni direktorga tushuntiring va to'g'ri ma'lumot so'rang.
+6. Tool xatolik qaytarsa, xatoni direktorga tushuntiring va to'g'ri ma'lumot so'rang.
 
 Javoblaringiz o'zbek tilida, qisqa va ishbilarmon uslubda bo'lsin.
 """
