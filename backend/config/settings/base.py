@@ -236,7 +236,10 @@ if SENTRY_DSN:
 #   curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<domain>/api/v1/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>/"
 
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
-TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="")
+# BotFather shows the username as "@PolarisAIBot", but t.me deep links break
+# (redirect to telegram.org's download page instead of opening the bot) if
+# that "@" gets pasted into the env var — strip it defensively either way.
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="").lstrip("@")
 TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="")
 
 # --- Admin panel look & feel (Jazzmin) --------------------------------------
