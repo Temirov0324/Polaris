@@ -20,6 +20,9 @@ api_v1_patterns = [
 ]
 
 urlpatterns = [
+    # Must come before admin.site.urls below — that include() greedily
+    # matches everything under "admin/" and would otherwise 404 this.
+    path("admin/agent/", include("apps.admin_agent.urls")),
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_patterns)),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

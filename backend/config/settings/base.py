@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.notifications",
     "apps.analytics",
     "apps.telegram_bot",
+    "apps.admin_agent",
 ]
 
 MIDDLEWARE = [
@@ -182,6 +183,13 @@ CACHES = {
 GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 GEMINI_MODEL = env("GEMINI_MODEL", default="gemini-3.6-flash")
 
+# Separate key for the admin-only content agent (apps.admin_agent) — kept
+# distinct from GEMINI_API_KEY above so usage/cost/rate-limits for the
+# founder's catalog-entry tool never compete with the user-facing chat.
+# Opt-in: leave empty to disable (the console shows a "not configured"
+# message instead of erroring).
+GEMINI_ADMIN_API_KEY = env("GEMINI_ADMIN_API_KEY", default="")
+
 # --- Email (dev reminders) ------------------------------------------------
 
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
@@ -234,12 +242,14 @@ JAZZMIN_SETTINGS = {
     "search_model": ["users.User", "trips.Trip", "destinations.Destination"],
     "topmenu_links": [
         {"name": "Saytni ko'rish", "url": "/", "new_window": True},
+        {"name": "AI yordamchi", "url": "/admin/agent/", "icon": "fas fa-robot"},
         {"model": "users.User"},
     ],
     "show_sidebar": True,
     "navigation_expanded": False,
     "order_with_respect_to": [
         "analytics",
+        "admin_agent",
         "users",
         "trips",
         "savings",
@@ -260,6 +270,7 @@ JAZZMIN_SETTINGS = {
         "destinations.PriceReference": "fas fa-tags",
         "chat.ChatMessage": "fas fa-comments",
         "analytics.AnalyticsEvent": "fas fa-chart-line",
+        "admin_agent.AdminAgentLog": "fas fa-robot",
     },
     "default_icon_parents": "fas fa-folder",
     "default_icon_children": "fas fa-circle",

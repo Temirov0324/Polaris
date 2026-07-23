@@ -1,0 +1,151 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Admin AI yordamchi | {{ block.super }}{% endblock %}
+
+{% block content_title %}Admin AI yordamchi{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">Bosh sahifa</a></li>
+    <li class="breadcrumb-item active">Admin AI yordamchi</li>
+</ol>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+  .agent-shell { display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 420px; }
+  .agent-log { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .agent-msg { max-width: 75%; padding: 0.6rem 0.9rem; border-radius: 0.5rem; line-height: 1.45; white-space: pre-wrap; }
+  .agent-msg--user { align-self: flex-end; background: var(--polaris-primary, #3b82f6); color: #fff; }
+  .agent-msg--assistant { align-self: flex-start; background: var(--polaris-surface-raised, #1a2436); border: 1px solid var(--polaris-border, #263449); }
+  .agent-msg--system { align-self: center; font-size: 0.85rem; opacity: 0.7; }
+  .agent-actions { align-self: flex-start; max-width: 75%; display: flex; flex-direction: column; gap: 0.25rem; }
+  .agent-action { font-size: 0.78rem; padding: 0.3rem 0.6rem; border-radius: 0.35rem; border: 1px solid var(--polaris-border, #263449); }
+  .agent-action--ok { color: #34d399; }
+  .agent-action--fail { color: #f87171; }
+  .agent-input-row { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid var(--polaris-border, #263449); }
+  .agent-input-row textarea { flex: 1; resize: none; min-height: 3.5rem; }
+  .agent-empty { opacity: 0.6; text-align: center; margin-top: 2rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+{{ history|json_script:"agent-history-data" }}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Kontent kiritish agenti — davlat, yo'nalish va narx ma'lumotlarini matn orqali qo'shing</span>
+    <button type="button" id="agent-reset" class="btn btn-sm btn-outline-secondary">Suhbatni tozalash</button>
+  </div>
+  <div class="agent-shell">
+    <div id="agent-log" class="agent-log">
+      {% if not history %}
+      <div class="agent-empty">
+        Masalan: "Turkiya — TR kodi, vizasiz. Istanbul shahri, iyul oyi uchun: chipta $220, mehmonxona
+        econom $18/standard $28/comfort $45, ovqat $12/$20/$35, transport $8, faoliyat $10"
+      </div>
+      {% endif %}
+    </div>
+    <div class="agent-input-row">
+      <textarea id="agent-input" class="form-control" placeholder="Ma'lumotni shu yerga yozing yoki joylashtiring..."></textarea>
+      <button type="button" id="agent-send" class="btn btn-primary">Yubor</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+(function () {
+  const csrfToken = "{{ csrf_token }}";
+  const logEl = document.getElementById("agent-log");
+  const inputEl = document.getElementById("agent-input");
+  const sendBtn = document.getElementById("agent-send");
+  const resetBtn = document.getElementById("agent-reset");
+
+  const initialHistory = JSON.parse(document.getElementById("agent-history-data").textContent);
+
+  function scrollToBottom() {
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function clearEmptyState() {
+    const empty = logEl.querySelector(".agent-empty");
+    if (empty) empty.remove();
+  }
+
+  function appendMessage(role, text) {
+    clearEmptyState();
+    const div = document.createElement("div");
+    div.className = "agent-msg agent-msg--" + role;
+    div.textContent = text;
+    logEl.appendChild(div);
+    scrollToBottom();
+  }
+
+  function appendActions(actions) {
+    if (!actions || !actions.length) return;
+    const wrap = document.createElement("div");
+    wrap.className = "agent-actions";
+    actions.forEach(function (action) {
+      const ok = action.result && action.result.ok !== false;
+      const chip = document.createElement("div");
+      chip.className = "agent-action " + (ok ? "agent-action--ok" : "agent-action--fail");
+      chip.textContent = (ok ? "✓ " : "✗ ") + action.tool + ": " + JSON.stringify(action.result);
+      wrap.appendChild(chip);
+    });
+    logEl.appendChild(wrap);
+    scrollToBottom();
+  }
+
+  initialHistory.forEach(function (m) {
+    appendMessage(m.role === "user" ? "user" : "assistant", m.content);
+  });
+
+  async function send() {
+    const message = inputEl.value.trim();
+    if (!message) return;
+    inputEl.value = "";
+    sendBtn.disabled = true;
+    appendMessage("user", message);
+
+    try {
+      const resp = await fetch("{% url 'admin_agent:message' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+        body: JSON.stringify({ message: message }),
+      });
+      const data = await resp.json();
+      if (data.error) {
+        appendMessage("system", data.error);
+      } else {
+        appendMessage("assistant", data.reply);
+        appendActions(data.actions);
+      }
+    } catch (err) {
+      appendMessage("system", "Tarmoq xatosi yuz berdi, qayta urinib ko'ring.");
+    } finally {
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  sendBtn.addEventListener("click", send);
+  inputEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+
+  resetBtn.addEventListener("click", async function () {
+    await fetch("{% url 'admin_agent:message' %}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+      body: JSON.stringify({ reset: true }),
+    });
+    logEl.innerHTML = "";
+    appendMessage("system", "Suhbat tozalandi.");
+  });
+})();
+</script>
+{% endblock %}

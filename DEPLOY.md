@@ -222,3 +222,33 @@ yuqori. Bot ichida `/byudjet <shahar> <kunlar>` buyrug'i ham ishlaydi.
 5. Tekshirish: Telegram'da botingizni toping, `/help` yuboring — buyruqlar
    ro'yxati kelishi kerak. Saytda Profil → "Telegram bilan bog'lash"
    tugmasini bosib, hisobingizni bog'lang.
+
+## Admin AI yordamchi sozlash (ixtiyoriy)
+
+`/admin/agent/` — faqat superuser (siz) kira oladigan sahifa: davlat,
+yo'nalish va narx ma'lumotlarini erkin matn shaklida yozib/joylashtirib
+berasiz, agent ularni tekshirib to'g'ridan-to'g'ri bazaga qo'shadi.
+Foydalanuvchilarning shaxsiy ma'lumotlari (User, Trip, SavingEntry,
+ChatMessage) bilan bu agentning hech qanday aloqasi yo'q — u faqat
+Country/Destination/PriceReference jadvallarini o'zgartira oladi.
+
+Foydalanuvchilarga xizmat qiladigan chat (`GEMINI_API_KEY`) bilan
+aralashmasligi uchun **alohida** Gemini kaliti ishlatiladi.
+
+1. https://aistudio.google.com/apikey saytidan yangi API kalit oling
+   (yoki mavjud `GEMINI_API_KEY` bilan bir xil loyihadan ikkinchi kalit
+   yarating).
+
+2. `.env` faylini yangilang:
+   ```
+   GEMINI_ADMIN_API_KEY=<yangi kalit>
+   ```
+
+3. Konteynerni qayta ishga tushiring:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --force-recreate web
+   ```
+
+4. Tekshirish: `/admin/` panelga superuser sifatida kiring, yuqori
+   menyudagi "AI yordamchi" tugmasini bosing va sinov uchun bitta davlat
+   yoki yo'nalish yozib ko'ring.
