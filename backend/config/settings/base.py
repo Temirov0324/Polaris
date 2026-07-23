@@ -124,6 +124,14 @@ STORAGES = {
     },
 }
 
+# Jazzmin's admin/base.html does `{% static 'vendor/bootswatch' %}` on a bare
+# directory (for its client-side theme-switcher JS, not an actual file) --
+# under the strict manifest storage above that has no hashed entry and
+# always raises, breaking every admin page. Non-strict mode falls back to
+# passing that one reference through unhashed (which is correct here, since
+# it isn't a real file) while every genuine static file still gets hashed.
+WHITENOISE_MANIFEST_STRICT = False
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- REST framework -----------------------------------------------------
